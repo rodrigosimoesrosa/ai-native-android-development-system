@@ -3,6 +3,10 @@
 *.iml
 .vscode/
 
+# --- MVI Sample App ---
+# Ignore build artifacts and local configuration files
+/mvi-sample
+
 # --- OS ---
 .DS_Store
 
@@ -30,3 +34,9 @@ captures/
 # --- Kotlin/Java ---
 *.log
 *.hprof
+
+# --- Obsidian (commit shared vault config; ignore per-user state) ---
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/

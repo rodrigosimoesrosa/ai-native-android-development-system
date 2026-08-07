@@ -275,13 +275,16 @@ Deliberately conventional so novelty stays in the process:
 
 - **[ADR-0001](../decisions/ADR-0001-build-on-existing-tools-neutral-core.md)** — Neutral core in git, AI tools as pluggable adapters. Compose Spec Kit + Claude Code; do not reinvent. *(Accepted)*
 - **[ADR-0002](../decisions/ADR-0002-adopt-spec-kit-as-sdd-engine.md)** — Adopt GitHub Spec Kit `0.12.2` as the SDD engine (skills mode, Claude Code integration). opencode confirmed available as a swap target. *(Accepted)*
-- **Constitution** — `.specify/memory/constitution.md` v1.0.0 ratified 2026-08-07 (5 core principles derived from this doc + ADR-0001). *(Ratified)*
+- **[ADR-0003](../decisions/ADR-0003-android-architecture-clean-mvi.md)** — Android architecture: pragmatic Clean Architecture + MVI, pure domain, model-per-layer, typed `Result`/`AppError`. *(Accepted)*
+- **[ADR-0004](../decisions/ADR-0004-dependency-injection-hilt.md)** — Dependency Injection with Hilt (on Dagger `2.60.1`); `:app` as composition root, domain stays pure. *(Accepted)*
+- **[ADR-0005](../decisions/ADR-0005-local-persistence-room-datastore.md)** — Local persistence: Room `2.8.4` for relational data (`Product` → `ProductEntity`) + Proto DataStore `1.2.1` for single-object/typed state (the current `User` → `UserProto`, settings, flags). Persistence types confined to `:data`, mapped straight to domain; offline-first. *(Accepted)*
+- **Constitution** — `.specify/memory/constitution.md` v1.1.0 (amended 2026-08-07: SOLID explicit + architecture baseline). *(Ratified)*
 
 ## Open questions (to resolve as ADRs)
 
 1. ~~Exact spec format~~ → **resolved by ADR-0002** (Spec Kit 0.12.2 adopted; templates in `.specify/templates/`).
 2. ~~Where "Skills" live~~ → **resolved by ADR-0001** (neutral `methods/` + thin `adapters/`); ADR-0004 to detail method/adapter conventions.
-3. Minimum viable knowledge-graph representation before any DB is justified (ADR-0003).
+3. Minimum viable knowledge-graph representation before any DB is justified (ADR-0006).
 4. What precisely triggers each human gate.
 5. How provenance is recorded without polluting git history or the app code.
 6. The concrete "cold-start agent self-sufficiency" check in CI.

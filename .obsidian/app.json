@@ -1,0 +1,13 @@
+{
+  "useMarkdownLinks": true,
+  "newLinkFormat": "relative",
+  "alwaysUpdateLinks": true,
+  "userIgnoreFilters": [
+    ".specify/templates/",
+    ".specify/scripts/",
+    ".specify/workflows/",
+    ".specify/integrations/",
+    ".claude/",
+    ".idea/"
+  ]
+}

@@ -11,11 +11,13 @@ Every unit of work begins as a specification an agent can read, plan against, an
 Code implements a spec; tests verify it. If code and spec disagree, one of them is a bug —
 fix the disagreement, never ignore it. No implementation starts without an approved spec.
 
-### II. Small, Verifiable Units with Explicit Boundaries
+### II. Small, Verifiable Units with Explicit Boundaries (SOLID)
 Prefer many small, reviewable diffs over few large ones. Every change maps to a scoped spec
 with machine-checkable acceptance criteria. Modules expose contracts and hide internals so a
 change's blast radius is small and legible. An agent must be able to change a module knowing
-exactly what it can and cannot break.
+exactly what it can and cannot break. **SOLID is mandatory** — most importantly Dependency
+Inversion: the domain defines abstractions (repository interfaces); outer layers implement
+them, so dependency arrows point inward (see [ADR-0003](../../decisions/ADR-0003-android-architecture-clean-mvi.md)).
 
 ### III. Tests as Executable Specification (NON-NEGOTIABLE)
 The test suite is the machine-readable contract an agent optimizes against. Acceptance
@@ -41,6 +43,14 @@ novelty budget is spent on the engineering *process*, not the stack.
   system; the app must be representative and non-trivial, never a feature showcase.
 - **Modularization by feature + core layers**, with explicit module contracts and clear
   UI / domain / data boundaries so change scope is legible to an agent.
+- **Architecture baseline (binding on all features):** pragmatic **Clean Architecture + MVI**,
+  with a **pure domain** (no framework/Android deps), model-per-layer with mapping at
+  boundaries, and typed `Result`/`AppError` communication. **Hilt** for DI. Defined in
+  [ADR-0003](../../decisions/ADR-0003-android-architecture-clean-mvi.md),
+  [ADR-0004](../../decisions/ADR-0004-dependency-injection-hilt.md), and
+  [ADR-0005](../../decisions/ADR-0005-local-persistence-room-datastore.md) (persistence: Room +
+  Proto DataStore, offline-first). Features inherit this at `/speckit-plan` time — architecture
+  is decided here, never rediscovered at task time.
 - **Determinism & reproducibility:** pin versions, script everything, justify stack choices in
   ADRs. Same spec + same inputs → same verifiable outcome.
 - **Layered legibility:** terse human-facing summaries on top, exhaustive machine-readable
@@ -72,4 +82,13 @@ must be justified against these principles; unjustified complexity is rejected. 
 constitution and a tool's default behavior conflict, the constitution wins and the adapter is
 adjusted. Runtime engineering guidance for agents lives in `docs/` and `decisions/`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-07 | **Last Amended**: 2026-08-07
+## References
+
+- [Vision & Architecture](../../docs/00-vision-and-architecture.md)
+- [ADR-0001 — Neutral core, tools as pluggable adapters](../../decisions/ADR-0001-build-on-existing-tools-neutral-core.md)
+- [ADR-0002 — Adopt GitHub Spec Kit](../../decisions/ADR-0002-adopt-spec-kit-as-sdd-engine.md)
+- [ADR-0003 — Android architecture: Clean Architecture + MVI](../../decisions/ADR-0003-android-architecture-clean-mvi.md)
+- [ADR-0004 — Dependency Injection with Hilt](../../decisions/ADR-0004-dependency-injection-hilt.md)
+- [ADR-0005 — Local persistence: Room + Proto DataStore](../../decisions/ADR-0005-local-persistence-room-datastore.md)
+
+**Version**: 1.1.0 | **Ratified**: 2026-08-07 | **Last Amended**: 2026-08-07

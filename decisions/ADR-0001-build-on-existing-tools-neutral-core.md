@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-07
 - **Deciders:** Project maintainer
-- **Related:** [[00-vision-and-architecture]], ADR-0002 (spec format — created), ADR-0003 (knowledge-graph representation — to be created)
+- **Related:** [Vision & Architecture](../docs/00-vision-and-architecture.md), [ADR-0002](ADR-0002-adopt-spec-kit-as-sdd-engine.md) (Spec Kit adoption), ADR-0006 (knowledge-graph representation — to be created)
 
 ---
 
@@ -99,5 +99,5 @@ holds only packaging/invocation — zero domain logic.
 - [ ] Create `methods/` (neutral) and `adapters/claude-code/` (tool-specific) directories with the boundary documented.
 - [ ] Add a **CI guardrail**: verify that no file outside `adapters/` references tool-specific mechanisms (simple grep lint).
 - [ ] ADR-0002: spec format — confirm adoption of Spec Kit and how it fits into `specs/`.
-- [ ] ADR-0003: knowledge-graph representation (files in git — already decided in the vision, formalize).
+- [ ] ADR-0006: knowledge-graph representation (files in git — already decided in the vision, formalize).
 - [ ] Update `00-vision-and-architecture.md` to make the adapter layer explicit. ✅

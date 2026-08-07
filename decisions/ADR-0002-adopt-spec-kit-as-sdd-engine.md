@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-07
 - **Deciders:** Project maintainer
-- **Related:** [[ADR-0001-build-on-existing-tools-neutral-core]], [[00-vision-and-architecture]], project constitution (`.specify/memory/constitution.md`)
+- **Related:** [ADR-0001](ADR-0001-build-on-existing-tools-neutral-core.md), [Vision & Architecture](../docs/00-vision-and-architecture.md), [project constitution](../docs/constitution.md)
 
 ---
 
