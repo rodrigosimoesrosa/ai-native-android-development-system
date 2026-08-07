@@ -1,103 +1,103 @@
-# ADR-0001: Núcleo neutro em git, ferramentas de IA como adaptadores plugáveis
+# ADR-0001: Neutral core in git, AI tools as pluggable adapters
 
-- **Status:** Aceita
-- **Data:** 2026-08-07
-- **Decisores:** Mantenedor do projeto
-- **Relacionadas:** [[00-vision-and-architecture]], ADR-0002 (formato de spec — a criar), ADR-0003 (representação do knowledge graph — a criar)
+- **Status:** Accepted
+- **Date:** 2026-08-07
+- **Deciders:** Project maintainer
+- **Related:** [[00-vision-and-architecture]], ADR-0002 (spec format — created), ADR-0003 (knowledge-graph representation — to be created)
 
 ---
 
-## Contexto
+## Context
 
-Ao definir os próximos entregáveis, surgiu a pergunta certa:
+While defining the next deliverables, the right question surfaced:
 
-> "Claude Code e Spec Kit já não fazem isso por mim? E se amanhã eu quiser usar opencode
-> no lugar do Claude Code, essa estrutura ainda serve?"
+> "Don't Claude Code and Spec Kit already do this for me? And if tomorrow I want to use
+> opencode instead of Claude Code, will this structure still work?"
 
-Duas tensões:
+Two tensions:
 
-1. **Risco de NIH (*not-invented-here*).** Reinventar um formato de spec (Spec Kit já dá)
-   ou um mecanismo de Skills (Claude Code já dá) gastaria o orçamento de novidade no lugar
-   errado e enfraqueceria o projeto como peça de portfólio Staff/Principal. Comprar > construir.
+1. **NIH (not-invented-here) risk.** Reinventing a spec format (Spec Kit already provides one)
+   or a Skills mechanism (Claude Code already provides one) would spend the novelty budget in
+   the wrong place and weaken the project as a Staff/Principal portfolio piece. Buy > build.
 
-2. **Risco de lock-in.** Se a inteligência do projeto (specs, conhecimento, método) viver
-   *dentro* de features proprietárias de uma ferramenta, trocar de agente (Claude Code →
-   opencode, Cursor, Copilot, Gemini) exigiria reconstruir o projeto. Isso contradiz o
-   não-objetivo de neutralidade de fornecedor definido na visão.
+2. **Lock-in risk.** If the project's intelligence (specs, knowledge, method) lives *inside*
+   a tool's proprietary features, swapping agents (Claude Code → opencode, Cursor, Copilot,
+   Gemini) would require rebuilding the project. This contradicts the vendor-neutrality
+   non-goal defined in the vision.
 
-A pergunta "e se eu trocar a ferramenta amanhã?" é o teste de estresse do design inteiro.
-Um projeto cuja resposta é "aí quebra tudo" não é uma referência de engenharia AI-native —
-é um acoplamento disfarçado.
+The question "what if I swap tools tomorrow?" is the stress test for the whole design. A
+project whose answer is "then everything breaks" is not an AI-native engineering reference —
+it is coupling in disguise.
 
-## Decisão
+## Decision
 
-Adotamos duas regras, conjuntas e inseparáveis:
+We adopt two rules, joint and inseparable:
 
-### 1. Compor, não reinventar
-- **Specs:** adotamos **Spec Kit** como mecanismo de spec-driven development. Não criamos formato próprio.
-- **Capacidades de IA (Skills):** adotamos o mecanismo de **Skills do Claude Code** como *um* adaptador. Não construímos um runtime de agentes próprio.
-- **Gates/automação:** usamos os mecanismos nativos da ferramenta (permissões, hooks, CI) em vez de orquestrador próprio.
+### 1. Compose, don't reinvent
+- **Specs:** we adopt **Spec Kit** as the spec-driven development mechanism. We do not create our own format.
+- **AI capabilities (Skills):** we adopt **Claude Code Skills** as *one* adapter. We do not build our own agent runtime.
+- **Gates/automation:** we use the tool's native mechanisms (permissions, hooks, CI) instead of our own orchestrator.
 
-### 2. Núcleo neutro em git + ferramenta como adaptador fino
-O conhecimento e o método vivem em **arquivos neutros no git**. A ferramenta de IA é uma
-**camada de adaptador plugável** por cima. A fronteira é explícita e obrigatória:
+### 2. Neutral core in git + tool as a thin adapter
+Knowledge and method live in **neutral files in git**. The AI tool is a **pluggable adapter
+layer** on top. The boundary is explicit and mandatory:
 
 ```
 ┌───────────────────────────────────────────────────────────┐
-│  NÚCLEO NEUTRO (git) — dono da inteligência do projeto      │
-│  · specs/          (Spec Kit — formato agnóstico)          │
-│  · decisions/      (ADRs em markdown)                      │
-│  · knowledge/      (glossário, contratos de módulo, links) │
-│  · methods/        (o "como" de cada skill, em prosa neutra)│
-│  · app/            (código Android modularizado)           │
-│  · tests + CI      (contrato executável, neutro)           │
+│  NEUTRAL CORE (git) — owns the project's intelligence      │
+│  · specs/          (Spec Kit — tool-agnostic format)       │
+│  · decisions/      (ADRs in markdown)                      │
+│  · knowledge/      (glossary, module contracts, links)     │
+│  · methods/        (the "how" of each skill, neutral prose)│
+│  · app/            (modularized Android code)              │
+│  · tests + CI      (executable contract, neutral)          │
 └───────────────────────────┬───────────────────────────────┘
-                            │ invocado por ↓ (fino, descartável)
+                            │ invoked by ↓ (thin, disposable)
 ┌───────────────────────────▼───────────────────────────────┐
-│  CAMADA DE ADAPTADOR (específica da ferramenta)            │
+│  ADAPTER LAYER (tool-specific)                             │
 │  · adapters/claude-code/   (SKILL.md, hooks, settings)     │
-│  · adapters/opencode/      (equivalente — a criar quando   │
-│                             /se houver necessidade)         │
+│  · adapters/opencode/      (equivalent — created when/if   │
+│                             a real need appears)           │
 └───────────────────────────────────────────────────────────┘
 ```
 
-**Regra de ouro:** uma Skill não é uma capacidade que *vive* dentro do Claude Code. É um
-**método documentado em `methods/`** (neutro) que um adaptador apenas *invoca*. O adaptador
-contém só o empacotamento/invocação — zero lógica de domínio.
+**Golden rule:** a Skill is not a capability that *lives* inside Claude Code. It is a
+**method documented in `methods/`** (neutral) that an adapter merely *invokes*. The adapter
+holds only packaging/invocation — zero domain logic.
 
-## Consequências
+## Consequences
 
-### Positivas
-- **~85% da estrutura é imune à troca de ferramenta** (specs, knowledge, arquitetura, testes, CI). Trocar Claude Code → opencode = escrever um novo diretório `adapters/`, não reescrever o projeto.
-- **Portabilidade verificável, não prometida.** A fronteira é uma regra de diretório que um reviewer (humano ou agente) consegue checar.
-- **Entrega mais rápida:** não gastamos esforço reconstruindo Spec Kit / runtime de Skills.
-- **Portfólio mais forte:** demonstra a decisão madura "comprar > construir" e "projetar para portabilidade", que é exatamente o que se avalia em Staff/Principal.
+### Positive
+- **~85% of the structure is immune to a tool swap** (specs, knowledge, architecture, tests, CI). Swapping Claude Code → opencode = writing a new `adapters/` directory, not rewriting the project.
+- **Verifiable portability, not promised.** The boundary is a directory rule a reviewer (human or agent) can check.
+- **Faster delivery:** no effort spent rebuilding Spec Kit / a Skills runtime.
+- **Stronger portfolio:** demonstrates the mature "buy > build" and "design for portability" instincts — exactly what is assessed at Staff/Principal.
 
-### Negativas / custos
-- **Disciplina contínua exigida.** É fácil um agente acoplar features proprietárias sem perceber. Precisamos de um *guardrail* (ver Ações).
-- **Alguma duplicação:** o método fica em `methods/` (neutro) e é referenciado pelo adaptador — um nível de indireção a mais.
-- **Dependemos da evolução de terceiros** (Spec Kit, Claude Code). Aceitável: são substituíveis por design.
+### Negative / costs
+- **Ongoing discipline required.** It is easy for an agent to couple proprietary features unnoticed. We need a guardrail (see Actions).
+- **Some duplication:** the method lives in `methods/` (neutral) and is referenced by the adapter — one extra level of indirection.
+- **We depend on third-party evolution** (Spec Kit, Claude Code). Acceptable: they are replaceable by design.
 
-### Neutras
-- Os ~15% acoplados (empacotamento de skill, hooks, settings) ficam isolados e explicitamente descartáveis em `adapters/`.
+### Neutral
+- The ~15% coupled parts (skill packaging, hooks, settings) are isolated and explicitly disposable under `adapters/`.
 
-## Alternativas consideradas
+## Alternatives considered
 
-1. **Construir sistema SDD próprio (formato de spec + runtime de skills).**
-   Rejeitada: NIH, lento, gasta novidade no lugar errado, ainda assim precisaria de um agente para rodar.
+1. **Build our own SDD system (spec format + skills runtime).**
+   Rejected: NIH, slow, spends novelty in the wrong place, and would still need an agent to run.
 
-2. **Acoplar tudo ao Claude Code (usar features proprietárias livremente).**
-   Rejeitada: lock-in; quebra na primeira troca de ferramenta; contradiz a tese de neutralidade.
+2. **Couple everything to Claude Code (freely use proprietary features).**
+   Rejected: lock-in; breaks on the first tool swap; contradicts the neutrality thesis.
 
-3. **Suportar múltiplas ferramentas desde já (Claude Code + opencode em paralelo na v1).**
-   Rejeitada por ora: custo de manter dois adaptadores sem necessidade comprovada. A
-   arquitetura *permite* isso; só criamos o segundo adaptador quando houver demanda real
-   (provaria portabilidade — candidato natural para a v3).
+3. **Support multiple tools from day one (Claude Code + opencode in parallel in v1).**
+   Rejected for now: the cost of maintaining two adapters without a proven need. The
+   architecture *allows* it; we create the second adapter only when a real need appears (it
+   would prove portability — a natural candidate for v3).
 
-## Ações decorrentes
+## Resulting actions
 
-- [ ] Criar diretórios `methods/` (neutro) e `adapters/claude-code/` (específico) com a fronteira documentada.
-- [ ] Adicionar um **guardrail no CI**: verificar que nenhum arquivo fora de `adapters/` referencia mecanismos específicos de ferramenta (lint simples por grep).
-- [ ] ADR-0002: formato de spec — confirmar adoção do Spec Kit e como ele se encaixa em `specs/`.
-- [ ] ADR-0003: representação do knowledge graph (arquivos em git — já decidido na visão, formalizar).
-- [ ] Atualizar `00-vision-and-architecture.md` para tornar a camada de adaptador explícita. ✅
+- [ ] Create `methods/` (neutral) and `adapters/claude-code/` (tool-specific) directories with the boundary documented.
+- [ ] Add a **CI guardrail**: verify that no file outside `adapters/` references tool-specific mechanisms (simple grep lint).
+- [ ] ADR-0002: spec format — confirm adoption of Spec Kit and how it fits into `specs/`.
+- [ ] ADR-0003: knowledge-graph representation (files in git — already decided in the vision, formalize).
+- [ ] Update `00-vision-and-architecture.md` to make the adapter layer explicit. ✅

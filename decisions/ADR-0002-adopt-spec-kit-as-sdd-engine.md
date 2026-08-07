@@ -1,86 +1,85 @@
-# ADR-0002: Adotar GitHub Spec Kit como motor de Spec-Driven Development
+# ADR-0002: Adopt GitHub Spec Kit as the Spec-Driven Development engine
 
-- **Status:** Aceita
-- **Data:** 2026-08-07
-- **Decisores:** Mantenedor do projeto
-- **Relacionadas:** [[ADR-0001-build-on-existing-tools-neutral-core]], [[00-vision-and-architecture]], constituição do projeto (`.specify/memory/constitution.md`)
+- **Status:** Accepted
+- **Date:** 2026-08-07
+- **Deciders:** Project maintainer
+- **Related:** [[ADR-0001-build-on-existing-tools-neutral-core]], [[00-vision-and-architecture]], project constitution (`.specify/memory/constitution.md`)
 
 ---
 
-## Contexto
+## Context
 
-O [ADR-0001](ADR-0001-build-on-existing-tools-neutral-core.md) definiu a postura "compor, não
-reinventar" e "núcleo neutro + ferramenta como adaptador". Faltava registrar a decisão concreta:
-**qual** ferramenta de spec adotar e **como** ela se encaixa.
+[ADR-0001](ADR-0001-build-on-existing-tools-neutral-core.md) established the "compose, don't
+reinvent" and "neutral core + tool as adapter" stance. What remained was to record the
+concrete decision: **which** spec tool to adopt and **how** it fits.
 
-O [GitHub Spec Kit](https://github.com/github/spec-kit) foi avaliado e verificado na máquina de
-desenvolvimento. Fatos apurados (não de memória — checados via CLI instalada):
+[GitHub Spec Kit](https://github.com/github/spec-kit) was evaluated and verified on the
+development machine. Facts established (not from memory — checked via the installed CLI):
 
-- Versão instalada: **`specify 0.12.2`**.
-- Suporta **30+ agentes** via `specify init --integration <agent>`. `specify check` confirmou que
-  **Claude Code** e **opencode** estão ambos *available* nesta máquina.
-- Tem **skills mode**: para Claude, `specify init` instala *agent skills* por padrão (não prompts
-  de slash-command). Isso realiza o mapeamento "método neutro → skill da ferramenta" do ADR-0001
-  **de fábrica** — o próprio Spec Kit gera a camada de adaptador por agente.
-- Init in-place: `specify init . --integration claude` (usado `--force` por o repo não estar vazio).
+- Installed version: **`specify 0.12.2`**.
+- Supports **30+ agents** via `specify init --integration <agent>`. `specify check` confirmed
+  that **Claude Code** and **opencode** are both *available* on this machine.
+- Has a **skills mode**: for Claude, `specify init` installs *agent skills* by default (not
+  slash-command prompts). This realizes ADR-0001's "neutral method → tool skill" mapping
+  **out of the box** — Spec Kit itself generates the per-agent adapter layer.
+- In-place init: `specify init . --integration claude` (used `--force` because the repo was not empty).
 
-Essa decisão é *distinta* do ADR-0001: aquele estabeleceu a **estratégia** (neutro + adaptador);
-este registra a **escolha concreta de ferramenta** e sua adoção.
+This decision is *distinct* from ADR-0001: that one set the **strategy** (neutral core +
+adapter); this one records the **concrete tool choice** and its adoption.
 
-## Decisão
+## Decision
 
-Adotar o **GitHub Spec Kit** como motor de SDD do projeto, em **skills mode** para o Claude Code.
+Adopt **GitHub Spec Kit** as the project's SDD engine, in **skills mode** for Claude Code.
 
-Fluxo canônico (Princípio "The Loop" da constituição):
+Canonical flow (the constitution's "The Loop" principle):
 `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`,
-com `/speckit-constitution` para princípios e `/speckit-converge` para reconciliar o codebase.
-Skills opcionais de qualidade: `/speckit-clarify`, `/speckit-analyze`, `/speckit-checklist`.
+with `/speckit-constitution` for principles and `/speckit-converge` to reconcile the codebase.
+Optional quality skills: `/speckit-clarify`, `/speckit-analyze`, `/speckit-checklist`.
 
-Estrutura instalada (executado em 2026-08-07):
-- `.specify/` — templates, scripts, workflows, memory (constituição), integrations. **Núcleo neutro** → versionado.
-- `.claude/skills/speckit-*` — **camada de adaptador** do Claude Code → versionada (reproduzível por clone).
-- `.claude/settings.local.json` — settings locais/possíveis credenciais → **git-ignorado** (aviso de segurança do próprio Spec Kit).
+Installed structure (executed 2026-08-07):
+- `.specify/` — templates, scripts, workflows, memory (constitution), integrations. **Neutral core** → versioned.
+- `.claude/skills/speckit-*` — Claude Code **adapter layer** → versioned (reproducible by clone).
+- `.claude/settings.local.json` — local settings / possible credentials → **git-ignored** (per Spec Kit's own security notice).
 
-## Relação com a constituição (por que os dois existem)
+## Relationship to the constitution (why both exist)
 
-- A **constituição** *afirma a regra* (Princípio V: núcleo neutro, ferramenta como adaptador; e
-  o Loop de desenvolvimento). É governança voltada pra frente.
-- Este **ADR** *registra e justifica a decisão* que produziu a regra: qual ferramenta, versão,
-  alternativas, consequências. É proveniência voltada pra trás.
-- A própria constituição exige que emendas venham com um ADR e que "why does this exist?" tenha
-  resposta linkável (Princípio IV). Este ADR é essa resposta para a adoção do Spec Kit.
+- The **constitution** *asserts the rule* (Principle V: neutral core, tool as adapter; and the
+  Development Loop). It is forward-looking governance.
+- This **ADR** *records and justifies the decision* that produced the rule: which tool, version,
+  alternatives, consequences. It is backward-looking provenance.
+- The constitution itself requires amendments to come with an ADR and requires "why does this
+  exist?" to have a linkable answer (Principle IV). This ADR is that answer for the Spec Kit adoption.
 
-## Consequências
+## Consequences
 
-### Positivas
-- **Zero esforço** reconstruindo formato de spec ou runtime de skills.
-- **Portabilidade comprovada, não prometida:** `opencode` já aparece como integração disponível;
-  trocar de ferramenta = `specify init . --integration opencode --force`, com o núcleo neutro intacto.
-- O modo skills já produz a fronteira núcleo/adaptador do ADR-0001 automaticamente.
+### Positive
+- **Zero effort** rebuilding a spec format or a skills runtime.
+- **Proven portability, not promised:** `opencode` already shows up as an available integration;
+  swapping tools = `specify init . --integration opencode --force`, with the neutral core intact.
+- Skills mode already produces ADR-0001's core/adapter boundary automatically.
 
-### Negativas / custos
-- **Acoplamento à evolução do Spec Kit** (v0.12.2, pré-1.0 — API pode mudar). Mitigado: templates
-  são versionados no repo (`--force` regenera); Spec Kit é substituível por design.
-- `.claude/` pode acumular arquivos de ferramenta; exige disciplina de `.gitignore` (feito).
-- Comandos slash específicos do Spec Kit não são, por si, neutros — mas são regeneráveis por agente.
+### Negative / costs
+- **Coupling to Spec Kit's evolution** (v0.12.2, pre-1.0 — the API may change). Mitigated: templates
+  are versioned in the repo (`--force` regenerates); Spec Kit is replaceable by design.
+- `.claude/` may accumulate tool files; requires `.gitignore` discipline (done).
+- Spec Kit's slash commands are not themselves neutral — but they are regenerable per agent.
 
-### Neutras
-- Templates default do Spec Kit podem precisar de ajuste para refletir a constituição; divergências
-  vão para ADRs futuros.
+### Neutral
+- Spec Kit's default templates may need tuning to reflect the constitution; divergences go to future ADRs.
 
-## Alternativas consideradas
+## Alternatives considered
 
-1. **Formato de spec próprio + runtime próprio.** Rejeitada no ADR-0001 (NIH, lento, ainda precisaria de agente).
-2. **Outro toolkit SDD.** Não avaliado a fundo: Spec Kit é neutro quanto a agente, open-source, ativo
-   e já instalado/funcionando aqui — atende o requisito com o menor custo.
-3. **Prompts de slash-command em vez de skills.** Rejeitada: skills mode é o default do Claude e
-   materializa melhor a separação método/adaptador.
+1. **Our own spec format + our own runtime.** Rejected in ADR-0001 (NIH, slow, would still need an agent).
+2. **Another SDD toolkit.** Not evaluated in depth: Spec Kit is agent-neutral, open-source, active,
+   and already installed/working here — it meets the requirement at the lowest cost.
+3. **Slash-command prompts instead of skills.** Rejected: skills mode is Claude's default and better
+   materializes the method/adapter separation.
 
-## Ações decorrentes
+## Resulting actions
 
-- [x] `specify init . --integration claude --force` executado (2026-08-07).
-- [x] Constituição ratificada em `.specify/memory/constitution.md` (v1.0.0) via `/speckit-constitution`.
-- [x] `.gitignore` protege `.claude/settings.local.json`; rastreia `.claude/skills/`.
-- [ ] Primeira spec real via `/speckit-specify` para exercer o loop ponta-a-ponta (critério de saída da v1).
-- [ ] Guardrail de CI (ADR-0001, item aberto #7) garantindo fronteira núcleo-neutro / adaptador.
-- [ ] Reavaliar quando Spec Kit chegar a 1.0 (possível emenda deste ADR).
+- [x] `specify init . --integration claude --force` executed (2026-08-07).
+- [x] Constitution ratified in `.specify/memory/constitution.md` (v1.0.0) via `/speckit-constitution`.
+- [x] `.gitignore` protects `.claude/settings.local.json`; tracks `.claude/skills/`.
+- [ ] First real spec via `/speckit-specify` to exercise the loop end-to-end (v1 exit criterion).
+- [ ] CI guardrail (ADR-0001, open item #7) enforcing the neutral-core / adapter boundary.
+- [ ] Re-evaluate when Spec Kit reaches 1.0 (possible amendment to this ADR).
