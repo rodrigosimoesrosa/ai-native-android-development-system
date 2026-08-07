@@ -1,0 +1,32 @@
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+
+# --- OS ---
+.DS_Store
+
+# --- AI agent local/credential files (per Spec Kit security notice) ---
+# Local, machine-specific agent settings may hold auth tokens — never commit.
+.claude/settings.local.json
+# NOTE: .claude/skills/ IS committed on purpose — it is the tool adapter layer
+# (ADR-0001) and part of reproducibility. Cloning + Claude Code = it just works.
+
+# --- Android / Gradle (added ahead of the app; harmless while empty) ---
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+/build/
+**/build/
+.gradle/
+local.properties
+captures/
+.cxx/
+*.keystore
+*.jks
+
+# --- Kotlin/Java ---
+*.log
+*.hprof
