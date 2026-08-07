@@ -278,13 +278,14 @@ Deliberately conventional so novelty stays in the process:
 - **[ADR-0003](../decisions/ADR-0003-android-architecture-clean-mvi.md)** — Android architecture: pragmatic Clean Architecture + MVI, pure domain, model-per-layer, typed `Result`/`AppError`. *(Accepted)*
 - **[ADR-0004](../decisions/ADR-0004-dependency-injection-hilt.md)** — Dependency Injection with Hilt (on Dagger `2.60.1`); `:app` as composition root, domain stays pure. *(Accepted)*
 - **[ADR-0005](../decisions/ADR-0005-local-persistence-room-datastore.md)** — Local persistence: Room `2.8.4` for relational data (`Product` → `ProductEntity`) + Proto DataStore `1.2.1` for single-object/typed state (the current `User` → `UserProto`, settings, flags). Persistence types confined to `:data`, mapped straight to domain; offline-first. *(Accepted)*
+- **[ADR-0006](../decisions/ADR-0006-networking-and-auth-token-strategy.md)** — Networking: Retrofit `3.0.0` + OkHttp `5.4.0` + kotlinx.serialization; JWT auth with `AuthInterceptor` + `TokenAuthenticator` (single-flight refresh on 401, anti-loop), encrypted token storage. *(Accepted)*
 - **Constitution** — `.specify/memory/constitution.md` v1.1.0 (amended 2026-08-07: SOLID explicit + architecture baseline). *(Ratified)*
 
 ## Open questions (to resolve as ADRs)
 
 1. ~~Exact spec format~~ → **resolved by ADR-0002** (Spec Kit 0.12.2 adopted; templates in `.specify/templates/`).
 2. ~~Where "Skills" live~~ → **resolved by ADR-0001** (neutral `methods/` + thin `adapters/`); ADR-0004 to detail method/adapter conventions.
-3. Minimum viable knowledge-graph representation before any DB is justified (ADR-0006).
+3. Minimum viable knowledge-graph representation before any DB is justified (a future ADR).
 4. What precisely triggers each human gate.
 5. How provenance is recorded without polluting git history or the app code.
 6. The concrete "cold-start agent self-sufficiency" check in CI.

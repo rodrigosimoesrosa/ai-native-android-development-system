@@ -47,10 +47,12 @@ novelty budget is spent on the engineering *process*, not the stack.
   with a **pure domain** (no framework/Android deps), model-per-layer with mapping at
   boundaries, and typed `Result`/`AppError` communication. **Hilt** for DI. Defined in
   [ADR-0003](../../decisions/ADR-0003-android-architecture-clean-mvi.md),
-  [ADR-0004](../../decisions/ADR-0004-dependency-injection-hilt.md), and
+  [ADR-0004](../../decisions/ADR-0004-dependency-injection-hilt.md),
   [ADR-0005](../../decisions/ADR-0005-local-persistence-room-datastore.md) (persistence: Room +
-  Proto DataStore, offline-first). Features inherit this at `/speckit-plan` time — architecture
-  is decided here, never rediscovered at task time.
+  Proto DataStore, offline-first), and
+  [ADR-0006](../../decisions/ADR-0006-networking-and-auth-token-strategy.md) (networking:
+  Retrofit/OkHttp + JWT auth/refresh). Features inherit this at `/speckit-plan` time —
+  architecture is decided here, never rediscovered at task time.
 - **Determinism & reproducibility:** pin versions, script everything, justify stack choices in
   ADRs. Same spec + same inputs → same verifiable outcome.
 - **Layered legibility:** terse human-facing summaries on top, exhaustive machine-readable
@@ -90,5 +92,6 @@ adjusted. Runtime engineering guidance for agents lives in `docs/` and `decision
 - [ADR-0003 — Android architecture: Clean Architecture + MVI](../../decisions/ADR-0003-android-architecture-clean-mvi.md)
 - [ADR-0004 — Dependency Injection with Hilt](../../decisions/ADR-0004-dependency-injection-hilt.md)
 - [ADR-0005 — Local persistence: Room + Proto DataStore](../../decisions/ADR-0005-local-persistence-room-datastore.md)
+- [ADR-0006 — Networking + JWT auth/refresh strategy](../../decisions/ADR-0006-networking-and-auth-token-strategy.md)
 
 **Version**: 1.1.0 | **Ratified**: 2026-08-07 | **Last Amended**: 2026-08-07

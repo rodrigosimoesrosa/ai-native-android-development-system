@@ -20,7 +20,8 @@ graph TD
     A3["ADR-0003 · Clean Architecture + MVI"]
     A4["ADR-0004 · DI with Hilt"]
     A5["ADR-0005 · Persistence: Room + DataStore"]
-    A6["ADR-0006 · Knowledge graph"]:::todo
+    A6["ADR-0006 · Networking + auth/refresh"]
+    KG["ADR (future) · Knowledge graph"]:::todo
     MET["methods/"]:::todo
     ADP["adapters/"]:::todo
 
@@ -31,18 +32,20 @@ graph TD
     IDX --> A3
     IDX --> A4
     IDX --> A5
+    IDX --> A6
     A1 --> VIS
     A2 --> A1
     A2 --> VIS
     A2 --> CON
     A3 --> A4
     A3 --> A5
+    A3 --> A6
     CON --> VIS
     CON --> A1
     CON --> A2
     CON --> A3
     CON --> A4
-    A1 -.-> A6
+    A1 -.-> KG
     A1 -.-> MET
     A1 -.-> ADP
 
@@ -61,11 +64,12 @@ graph TD
 - [ADR-0003 — Android architecture: Clean Architecture + MVI](decisions/ADR-0003-android-architecture-clean-mvi.md)
 - [ADR-0004 — Dependency Injection with Hilt](decisions/ADR-0004-dependency-injection-hilt.md)
 - [ADR-0005 — Local persistence: Room + Proto DataStore](decisions/ADR-0005-local-persistence-room-datastore.md)
+- [ADR-0006 — Networking + JWT auth/refresh strategy](decisions/ADR-0006-networking-and-auth-token-strategy.md)
 
 ## Not created yet (dangling nodes — intentional)
 
 These appear grey in the graph until written:
 
-- ADR-0006 — Knowledge-graph representation
+- ADR (future) — Knowledge-graph representation
 - `methods/` — the neutral "how" behind each skill
 - `adapters/` — tool-specific invocation layer
