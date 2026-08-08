@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "com.mirabilis.data.auth.datastore";
+option java_multiple_files = true;
+
+// Persistence type for the authenticated session (ADR-0005/0006). Stored ENCRYPTED at rest via
+// Android Keystore (see SessionSerializer). Confined to :data; mapped straight to domain AuthSession.
+message SessionProto {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in_seconds = 3;
+}

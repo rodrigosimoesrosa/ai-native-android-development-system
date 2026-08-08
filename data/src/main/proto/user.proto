@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "com.mirabilis.data.auth.datastore";
+option java_multiple_files = true;
+
+// Persistence type for the current authenticated user (ADR-0005: single object → DataStore).
+// Stored encrypted at rest; confined to :data; mapped straight to domain User.
+message UserProto {
+  string id = 1;
+  string phone = 2;
+  string display_name = 3;
+}
