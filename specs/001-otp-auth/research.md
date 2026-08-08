@@ -13,12 +13,13 @@ before design.
 | Component | Version | Source |
 |---|---|---|
 | Kotlin | `2.2.20` | Skeleton choice — enables Compose Compiler Gradle plugin, K2 |
-| Android Gradle Plugin | `8.13.0` | Skeleton choice — compatible with Kotlin 2.2.x |
-| KSP | matched to Kotlin `2.2.20-x` | ADR-0004/0005 (KSP, not kapt) |
+| Gradle (wrapper) | `8.13` | Matched to AGP 8.13.0 |
+| Android Gradle Plugin | `8.13.0` | Skeleton choice — keeps the conventional `kotlin.android` setup (AGP 9 removes it) |
+| KSP | `2.2.20-2.0.2` | ADR-0004/0005 (KSP, not kapt) |
 | compileSdk / targetSdk | `36` | Skeleton choice |
 | minSdk | `26` | Android Keystore-backed encryption baseline (ADR-0006 §5) |
-| Compose BOM | current stable | Skeleton choice — pin exact at setup |
-| Dagger + Hilt | `2.60.1` | **ADR-0004** (fixed) |
+| Compose BOM | `2025.09.00` | Skeleton choice |
+| Dagger + Hilt | `2.56.2` | ADR-0004 (**use Hilt**); patch corrected at setup — Hilt 2.58+ requires AGP 9, so 2.56.2 is the AGP-8-compatible pin (verified: full graph builds green 2026-08-08) |
 | hilt-navigation-compose | `1.2.0` | ADR-0004 (confirm latest at setup) |
 | Retrofit | `3.0.0` | **ADR-0006** (fixed) |
 | OkHttp | `5.4.0` | **ADR-0006** (fixed) |

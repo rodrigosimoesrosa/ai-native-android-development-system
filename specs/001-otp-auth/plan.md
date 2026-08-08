@@ -27,7 +27,7 @@ and the `:core-ui` MVI base (ported from `mvi-sample/` with the two ADR-0003 fix
 
 **Language/Version**: Kotlin `2.2.20` (JVM target 17); pure JVM for `:core`/`:domain`.
 
-**Primary Dependencies**: Jetpack Compose (BOM), Hilt/Dagger `2.60.1` (KSP), Retrofit `3.0.0` +
+**Primary Dependencies**: Jetpack Compose (BOM), Hilt/Dagger `2.56.2` (KSP; AGP-8 compatible), Retrofit `3.0.0` +
 OkHttp `5.4.0` + kotlinx.serialization, Room `2.8.4`, Proto DataStore `1.2.1` + protobuf,
 Navigation Compose, `hilt-navigation-compose`.
 

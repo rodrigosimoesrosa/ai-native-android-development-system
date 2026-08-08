@@ -98,7 +98,28 @@ and the top-level infrastructure modules. Feature ViewModels are `@HiltViewModel
 
 ## Resulting actions
 
-- [ ] Pin Dagger/Hilt `2.60.1` + KSP in `gradle/libs.versions.toml`; add `@HiltAndroidApp` in `:app`.
-- [ ] `RepositoriesModule` in `:data`; infrastructure modules in `:app`.
-- [ ] `@Dispatcher` qualifier in `:core`; dispatcher `@Module` in `:app`.
-- [ ] First feature's ViewModel is `@HiltViewModel` with injected use cases.
+- [x] Pin Dagger/Hilt + KSP in `gradle/libs.versions.toml`; add `@HiltAndroidApp` in `:app`.
+      *(Pinned `2.56.2`, not `2.60.1` — see Amendment 1.)*
+- [x] `RepositoriesModule` in `:data` (placeholder; repo `@Binds` land with the first repo impl in `001-otp-auth` US1); `DataSourcesModule` in `:data`; infrastructure modules (`NetworkModule`, `DataStoreModule`, `DispatchersModule`) in `:app`.
+- [x] `@Dispatcher` qualifier in `:core`; dispatcher `@Module` in `:app`.
+- [ ] First feature's ViewModel is `@HiltViewModel` with injected use cases. *(001-otp-auth US1.)*
+
+## Amendments
+
+### Amendment 1 — Hilt pin `2.60.1 → 2.56.2` + AGP 8.x baseline (2026-08-08)
+
+**Context:** at skeleton-creation time (feature `001-otp-auth`, Phase 1) the pinned `2.60.1` failed the
+build: *"The Hilt Android Gradle plugin is only compatible with AGP version 9.0.0 or higher."* AGP 9.0.0
+in turn **removes** the `org.jetbrains.kotlin.android` plugin (Kotlin support becomes built into AGP) —
+a disruptive new model that every module here and the sibling ADRs assume in its conventional AGP-8 form.
+
+**Decision:** pin **Hilt `2.56.2`** (the newest release still compatible with AGP 8) and keep the
+**AGP `8.13.0` + Gradle `8.13` + `kotlin.android`** baseline. The ADR-0004 *decision* is unchanged —
+still Hilt/Dagger with per-layer modules and a pure-JVM `javax.inject` domain; only the **patch pin**
+moved. Migrating to AGP 9 (and thus Hilt ≥ 2.58) is deferred to a future, dedicated change.
+
+**Verification:** full module graph builds green — `:app:compileDebugKotlin` (incl. `:app:kspDebugKotlin`
+Hilt component generation) and `:core:test`/`:core-ui:testDebugUnitTest` all pass (2026-08-08).
+
+**Gate:** this is a dependency-version change → **requires merge-gate approval** (constitution:
+"Human-in-the-loop at gates … dependency addition"). Pins live in `gradle/libs.versions.toml`.

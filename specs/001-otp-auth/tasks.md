@@ -24,11 +24,11 @@ NON-NEGOTIABLE (Principle III), so every story writes failing tests before imple
 
 **Purpose**: Stand up the multi-module Gradle project per ADR-0003.
 
-- [ ] T001 Create Gradle skeleton at repo root: `settings.gradle.kts` (include `:core`, `:core-ui`, `:domain`, `:data`, `:feature:auth`, `:app`), root `build.gradle.kts`, `gradle.properties`, Gradle wrapper
-- [ ] T002 [P] Create `gradle/libs.versions.toml` pinning every version from [research.md](./research.md) (Kotlin 2.2.20, AGP 8.13.0, KSP, Hilt 2.60.1, Retrofit 3.0.0, OkHttp 5.4.0, Room 2.8.4, DataStore 1.2.1, protobuf, Compose BOM, kotlinx.serialization)
-- [ ] T003 Create per-module `build.gradle.kts` for all 6 modules with the ADR-0003 dependency wiring (`:data → :domain → :core`; `:core-ui` Android lib; `:feature:auth → :domain,:core,:core-ui`; `:app → all`) and plugins (KSP, compose, kotlinx.serialization, protobuf, hilt) — depends on T001, T002
-- [ ] T004 [P] Configure ktlint/spotless + `.editorconfig` at repo root
-- [ ] T005 [P] Add Android manifests + namespaces for `:app` and library modules (`minSdk 26`, `compileSdk`/`targetSdk 36`)
+- [x] T001 Create Gradle skeleton at repo root: `settings.gradle.kts` (include `:core`, `:core-ui`, `:domain`, `:data`, `:feature:auth`, `:app`), root `build.gradle.kts`, `gradle.properties`, Gradle wrapper
+- [x] T002 [P] Create `gradle/libs.versions.toml` pinning every version from [research.md](./research.md) (Kotlin 2.2.20, AGP 8.13.0, KSP, Hilt 2.60.1, Retrofit 3.0.0, OkHttp 5.4.0, Room 2.8.4, DataStore 1.2.1, protobuf, Compose BOM, kotlinx.serialization)
+- [x] T003 Create per-module `build.gradle.kts` for all 6 modules with the ADR-0003 dependency wiring (`:data → :domain → :core`; `:core-ui` Android lib; `:feature:auth → :domain,:core,:core-ui`; `:app → all`) and plugins (KSP, compose, kotlinx.serialization, protobuf, hilt) — depends on T001, T002
+- [x] T004 [P] Configure ktlint/spotless + `.editorconfig` at repo root
+- [x] T005 [P] Add Android manifests + namespaces for `:app` and library modules (`minSdk 26`, `compileSdk`/`targetSdk 36`)
 
 ---
 
@@ -39,27 +39,27 @@ by ALL stories.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 [P] `:core` — `Result<T>`, `FlowResult<T>`, `AppError` sealed types + `fold`/`asResult` helpers in `core/src/main/kotlin/com/mirabilis/core/result/`
-- [ ] T007 [P] `:core` — dispatchers abstraction + `@Dispatcher(IO|Default)` qualifier in `core/src/main/kotlin/com/mirabilis/core/dispatcher/`
-- [ ] T008 [P] `:core` — unit tests for `Result`/`fold`/`asResult` in `core/src/test/kotlin/com/mirabilis/core/result/`
-- [ ] T009 [P] `:core-ui` — port MVI base (`MVIViewModel`, `Reducer`, `UiState`/`UiEvent`/`UiEffect`/`UiIntent`) from `mvi-sample/` with ADR-0003 fixes (`setEvent`/`setEffect` `protected`, `History` removed) in `core-ui/src/main/kotlin/com/mirabilis/core/ui/mvi/`
-- [ ] T010 [P] `:core-ui` — unit test for reducer state emission + intent handling in `core-ui/src/test/kotlin/com/mirabilis/core/ui/mvi/`
-- [ ] T011 [P] `:domain` — models `PhoneVerificationChallenge`, `AuthSession`, `User` in `domain/src/main/kotlin/com/mirabilis/domain/auth/model/`
-- [ ] T012 [P] `:domain` — repository interfaces `IAuthRepository`, `ISessionRepository` in `domain/src/main/kotlin/com/mirabilis/domain/auth/repository/`
-- [ ] T013 [P] `:data` — `@Serializable` remote models (`OtpRequestResponseRemote`, `VerifyResponseRemote`, `RefreshResponseRemote`, `UserRemote`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/`
-- [ ] T014 [P] `:data` — Retrofit `AuthApi` (`POST otp/request`, `POST otp/verify`, `POST auth/refresh`, `GET /me`) per [contracts/auth-api.md](./contracts/auth-api.md) in `data/src/main/kotlin/com/mirabilis/data/auth/network/AuthApi.kt`
-- [ ] T015 [P] `:data` — `SafeRemoteDataSource` + `SafeLocalDataSource` bases (try/catch → typed `AppError`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/` and `.../datastore/`
-- [ ] T016 [P] `:data` — `session.proto` + `user.proto` schemas in `data/src/main/proto/`
-- [ ] T017 `:data` — `SessionProto`/`UserProto` `Serializer`s with Android-Keystore encryption at rest in `data/src/main/kotlin/com/mirabilis/data/auth/datastore/` — depends on T016
-- [ ] T018 `:data` — mappers (`*Remote.toDomain()`, `AuthSession.toProto()`/`SessionProto.toDomain()`, `User.toProto()`/`UserProto.toDomain()`) in `data/src/main/kotlin/com/mirabilis/data/auth/mapper/` — depends on T011, T013, T016
-- [ ] T019 `:data` — `SessionLocalDataSource` (DataStore read/write + map) + `@Singleton SessionHolder` in-memory token cache in `data/src/main/kotlin/com/mirabilis/data/auth/datastore/` and `.../session/` — depends on T017, T018
-- [ ] T020 `:data` — `AuthInterceptor` (attach `Bearer`, skip `otp/*`/`auth/refresh` via no-auth marker) in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T019
-- [ ] T021 `:data` — `AuthRemoteDataSource` impl (extends `SafeRemoteDataSource`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/` — depends on T014, T015
-- [ ] T022 `:data` — `FakeAuthApi` backing the running app (request/verify/me happy path) in `data/src/main/kotlin/com/mirabilis/data/auth/network/FakeAuthApi.kt` — depends on T014
-- [ ] T023 `:data` — Hilt `RepositoriesModule` + `DataSourcesModule` (`@Binds` interface→impl) in `data/src/main/kotlin/com/mirabilis/data/auth/di/` — depends on T012
-- [ ] T024 `:app` — `@HiltAndroidApp MirabilisApp` + `MainActivity` + Compose `NavHost` scaffold in `app/src/main/kotlin/com/mirabilis/app/`
-- [ ] T025 `:app` — Hilt `DispatchersModule`, `DataStoreModule` (DataStore instances), `NetworkModule` (authed OkHttp + Retrofit with `AuthInterceptor` + kotlinx.serialization converter) in `app/src/main/kotlin/com/mirabilis/app/di/` — depends on T020, T017
-- [ ] T026 `:feature:auth` — navigation graph skeleton (`SendPhone`/`VerifyPhone`/`Home` routes, `AuthNavGraph`) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/navigation/`
+- [x] T006 [P] `:core` — `Result<T>`, `FlowResult<T>`, `AppError` sealed types + `fold`/`asResult` helpers in `core/src/main/kotlin/com/mirabilis/core/result/`
+- [x] T007 [P] `:core` — dispatchers abstraction + `@Dispatcher(IO|Default)` qualifier in `core/src/main/kotlin/com/mirabilis/core/dispatcher/`
+- [x] T008 [P] `:core` — unit tests for `Result`/`fold`/`asResult` in `core/src/test/kotlin/com/mirabilis/core/result/`
+- [x] T009 [P] `:core-ui` — port MVI base (`MVIViewModel`, `Reducer`, `UiState`/`UiEvent`/`UiEffect`/`UiIntent`) from `mvi-sample/` with ADR-0003 fixes (`setEvent`/`setEffect` `protected`, `History` removed) in `core-ui/src/main/kotlin/com/mirabilis/core/ui/mvi/`
+- [x] T010 [P] `:core-ui` — unit test for reducer state emission + intent handling in `core-ui/src/test/kotlin/com/mirabilis/core/ui/mvi/`
+- [x] T011 [P] `:domain` — models `PhoneVerificationChallenge`, `AuthSession`, `User` in `domain/src/main/kotlin/com/mirabilis/domain/auth/model/`
+- [x] T012 [P] `:domain` — repository interfaces `IAuthRepository`, `ISessionRepository` in `domain/src/main/kotlin/com/mirabilis/domain/auth/repository/`
+- [x] T013 [P] `:data` — `@Serializable` remote models (`OtpRequestResponseRemote`, `VerifyResponseRemote`, `RefreshResponseRemote`, `UserRemote`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/`
+- [x] T014 [P] `:data` — Retrofit `AuthApi` (`POST otp/request`, `POST otp/verify`, `POST auth/refresh`, `GET /me`) per [contracts/auth-api.md](./contracts/auth-api.md) in `data/src/main/kotlin/com/mirabilis/data/auth/network/AuthApi.kt`
+- [x] T015 [P] `:data` — `SafeRemoteDataSource` + `SafeLocalDataSource` bases (try/catch → typed `AppError`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/` and `.../datastore/`
+- [x] T016 [P] `:data` — `session.proto` + `user.proto` schemas in `data/src/main/proto/`
+- [x] T017 `:data` — `SessionProto`/`UserProto` `Serializer`s with Android-Keystore encryption at rest in `data/src/main/kotlin/com/mirabilis/data/auth/datastore/` — depends on T016
+- [x] T018 `:data` — mappers (`*Remote.toDomain()`, `AuthSession.toProto()`/`SessionProto.toDomain()`, `User.toProto()`/`UserProto.toDomain()`) in `data/src/main/kotlin/com/mirabilis/data/auth/mapper/` — depends on T011, T013, T016
+- [x] T019 `:data` — `SessionLocalDataSource` (DataStore read/write + map) + `@Singleton SessionHolder` in-memory token cache in `data/src/main/kotlin/com/mirabilis/data/auth/datastore/` and `.../session/` — depends on T017, T018
+- [x] T020 `:data` — `AuthInterceptor` (attach `Bearer`, skip `otp/*`/`auth/refresh` via no-auth marker) in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T019
+- [x] T021 `:data` — `AuthRemoteDataSource` impl (extends `SafeRemoteDataSource`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/` — depends on T014, T015
+- [x] T022 `:data` — `FakeAuthApi` backing the running app (request/verify/me happy path) in `data/src/main/kotlin/com/mirabilis/data/auth/network/FakeAuthApi.kt` — depends on T014
+- [x] T023 `:data` — Hilt `RepositoriesModule` + `DataSourcesModule` (`@Binds` interface→impl) in `data/src/main/kotlin/com/mirabilis/data/auth/di/` — depends on T012
+- [x] T024 `:app` — `@HiltAndroidApp MirabilisApp` + `MainActivity` + Compose `NavHost` scaffold in `app/src/main/kotlin/com/mirabilis/app/`
+- [x] T025 `:app` — Hilt `DispatchersModule`, `DataStoreModule` (DataStore instances), `NetworkModule` (authed OkHttp + Retrofit with `AuthInterceptor` + kotlinx.serialization converter) in `app/src/main/kotlin/com/mirabilis/app/di/` — depends on T020, T017
+- [x] T026 `:feature:auth` — navigation graph skeleton (`SendPhone`/`VerifyPhone`/`Home` routes, `AuthNavGraph`) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/navigation/`
 
 **Checkpoint**: Foundation ready — user story work can begin.
 
@@ -74,27 +74,27 @@ info shown (quickstart scenarios 1–5).
 
 ### Tests for User Story 1 (write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T027 [P] [US1] MockWebServer contract tests for `POST /otp/request` & `POST /otp/verify` incl. AppError mapping (400/410/429) in `data/src/test/kotlin/com/mirabilis/data/auth/network/AuthApiTest.kt`
-- [ ] T028 [P] [US1] Unit test `RequestOtpUseCase` (E.164 validation reject/accept) in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/RequestOtpUseCaseTest.kt`
-- [ ] T029 [P] [US1] Unit test `VerifyOtpUseCase` (success establishes + persists session) in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/VerifyOtpUseCaseTest.kt`
-- [ ] T030 [P] [US1] ViewModel tests (Turbine) for SendPhone/VerifyPhone (incl. resend cooldown — FR-005)/Home in `feature/auth/src/test/kotlin/com/mirabilis/feature/auth/`
+- [x] T027 [P] [US1] MockWebServer contract tests for `POST /otp/request` & `POST /otp/verify` incl. AppError mapping (400/410/429) in `data/src/test/kotlin/com/mirabilis/data/auth/network/AuthApiTest.kt`
+- [x] T028 [P] [US1] Unit test `RequestOtpUseCase` (E.164 validation reject/accept) in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/RequestOtpUseCaseTest.kt`
+- [x] T029 [P] [US1] Unit test `VerifyOtpUseCase` (success establishes + persists session) in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/VerifyOtpUseCaseTest.kt`
+- [x] T030 [P] [US1] ViewModel tests (Turbine) for SendPhone/VerifyPhone (incl. resend cooldown — FR-005)/Home in `feature/auth/src/test/kotlin/com/mirabilis/feature/auth/`
 
 ### Implementation for User Story 1
 
-- [ ] T031 [P] [US1] `RequestOtpUseCase` (validate phone → `requestOtp`) in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
-- [ ] T032 [P] [US1] `VerifyOtpUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
-- [ ] T033 [P] [US1] `GetCurrentUserUseCase` (protected `GET /me`) in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
-- [ ] T034 [P] [US1] `ObserveAuthStateUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
-- [ ] T035 [US1] `AuthRepository` impl (requestOtp / verifyOtp → persist session+user / currentUser), maps `*Remote → domain` in `data/src/main/kotlin/com/mirabilis/data/auth/repository/AuthRepository.kt` — depends on T019, T021, T018
-- [ ] T036 [US1] `SessionRepository` impl (`observeAuthState`, `observeUser`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/SessionRepository.kt` — depends on T019
-- [ ] T037 [P] [US1] `SendPhoneViewModel` + `UiState/Intent/Event/Effect` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/sendphone/`
-- [ ] T038 [P] [US1] `VerifyPhoneViewModel` (holds transient challenge in VM state only — FR-013) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/`
-- [ ] T039 [P] [US1] `HomeViewModel` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/`
-- [ ] T040 [P] [US1] `SendPhoneScreen` Compose UI (phone input + inline format error — FR-002) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/sendphone/`
-- [ ] T041 [P] [US1] `VerifyPhoneScreen` Compose UI (code input + retryable error — FR-004) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/`
-- [ ] T041a [US1] Resend-code action: `Resend` intent + cooldown state in `VerifyPhoneViewModel` (reuses `RequestOtpUseCase`) and a resend button + cooldown/rate-limit message in `VerifyPhoneScreen` (FR-005; 429 → non-sensitive message) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/` — depends on T031, T038, T041
-- [ ] T042 [P] [US1] `HomeScreen` Compose UI (user profile — FR-012) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/`
-- [ ] T043 [US1] Wire nav SendPhone→VerifyPhone→Home; connect ViewModels to use cases; `FakeAuthApi` returns a session on verify — depends on T026, T035–T042
+- [x] T031 [P] [US1] `RequestOtpUseCase` (validate phone → `requestOtp`) in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
+- [x] T032 [P] [US1] `VerifyOtpUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
+- [x] T033 [P] [US1] `GetCurrentUserUseCase` (protected `GET /me`) in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
+- [x] T034 [P] [US1] `ObserveAuthStateUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
+- [x] T035 [US1] `AuthRepository` impl (requestOtp / verifyOtp → persist session+user / currentUser), maps `*Remote → domain` in `data/src/main/kotlin/com/mirabilis/data/auth/repository/AuthRepository.kt` — depends on T019, T021, T018
+- [x] T036 [US1] `SessionRepository` impl (`observeAuthState`, `observeUser`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/SessionRepository.kt` — depends on T019
+- [x] T037 [P] [US1] `SendPhoneViewModel` + `UiState/Intent/Event/Effect` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/sendphone/`
+- [x] T038 [P] [US1] `VerifyPhoneViewModel` (holds transient challenge in VM state only — FR-013) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/`
+- [x] T039 [P] [US1] `HomeViewModel` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/`
+- [x] T040 [P] [US1] `SendPhoneScreen` Compose UI (phone input + inline format error — FR-002) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/sendphone/`
+- [x] T041 [P] [US1] `VerifyPhoneScreen` Compose UI (code input + retryable error — FR-004) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/`
+- [x] T041a [US1] Resend-code action: `Resend` intent + cooldown state in `VerifyPhoneViewModel` (reuses `RequestOtpUseCase`) and a resend button + cooldown/rate-limit message in `VerifyPhoneScreen` (FR-005; 429 → non-sensitive message) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/verifyphone/` — depends on T031, T038, T041
+- [x] T042 [P] [US1] `HomeScreen` Compose UI (user profile — FR-012) in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/`
+- [x] T043 [US1] Wire nav SendPhone→VerifyPhone→Home; connect ViewModels to use cases; `FakeAuthApi` returns a session on verify — depends on T026, T035–T042
 
 **Checkpoint**: User Story 1 fully functional and independently testable (MVP).
 

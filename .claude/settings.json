@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/gradle-verify.sh",
+            "timeout": 300,
+            "statusMessage": "Verifying JVM tests (Principle III)…"
+          }
+        ]
+      }
+    ]
+  }
+}

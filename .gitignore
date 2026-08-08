@@ -33,7 +33,9 @@ captures/
 
 # --- Kotlin/Java ---
 *.log
-*.hprof
+*.h.kotlin/
+/out/
+**/out/
 
 # --- Obsidian (commit shared vault config; ignore per-user state) ---
 .obsidian/workspace.json
