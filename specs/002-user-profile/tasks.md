@@ -23,10 +23,10 @@
 
 ## Phase 3: US1 — View my profile (P1) 🎯 MVP
 
-- [ ] T010 [P] [US1] ViewModel test (Turbine): Profile loads the authenticated user in `feature/profile/src/test/...`
-- [ ] T011 [US1] `ProfileViewModel` + `UiState/Intent/Event/Effect` (reuse `ObserveUser`/`GetCurrentUser`) in `feature/profile/.../profile/`
-- [ ] T012 [US1] `ProfileScreen` Compose (show display name + phone; error + retry — FR-001/006) in `feature/profile/.../profile/`
-- [ ] T013 [US1] Expose route id `profile` + register `ProfileScreen` in `feature/profile/.../navigation/` (the cross-feature interface for 003)
+- [x] T010 [P] [US1] ViewModel test (Turbine): Profile loads the authenticated user in `feature/profile/src/test/...`
+- [x] T011 [US1] `ProfileViewModel` + `UiState/Intent/Event/Effect` (reuse `ObserveUser`/`GetCurrentUser`) in `feature/profile/.../profile/`
+- [x] T012 [US1] `ProfileScreen` Compose (show display name + phone; error + retry — FR-001/006) in `feature/profile/.../profile/`
+- [x] T013 [US1] Expose route id `profile` + register `ProfileScreen` in `feature/profile/.../navigation/` (the cross-feature interface for 003)
 
 ## Phase 4: US2 — Edit my display name (P2)
 
