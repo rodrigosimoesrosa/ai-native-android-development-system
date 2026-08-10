@@ -18,12 +18,11 @@ for f in "${required[@]}"; do
   [ -f "$f" ] || { echo "✗ missing knowledge file: $f"; fail=1; }
 done
 
-# 1b) Every feature spec carries the full loop (spec → plan → tasks).
+# 1b) Every feature has at least a specification. plan.md/tasks.md appear later in the loop, so a
+#     just-specified feature is valid — only spec.md is required here.
 for d in specs/*/; do
   [ -d "$d" ] || continue
-  for f in spec.md plan.md tasks.md; do
-    [ -f "$d$f" ] || { echo "✗ $d missing $f"; fail=1; }
-  done
+  [ -f "${d}spec.md" ] || { echo "✗ $d missing spec.md"; fail=1; }
 done
 
 # 2) Intra-repo markdown links resolve (neutral knowledge docs only; skip the tooling adapters).
