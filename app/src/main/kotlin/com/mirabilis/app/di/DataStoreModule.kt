@@ -8,6 +8,8 @@ import com.mirabilis.data.auth.datastore.SessionProto
 import com.mirabilis.data.auth.datastore.SessionSerializer
 import com.mirabilis.data.auth.datastore.UserProto
 import com.mirabilis.data.auth.datastore.UserSerializer
+import com.mirabilis.data.profile.preferences.PreferencesProto
+import com.mirabilis.data.profile.preferences.PreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,4 +40,12 @@ object DataStoreModule {
         serializer: UserSerializer,
     ): DataStore<UserProto> =
         DataStoreFactory.create(serializer = serializer) { context.dataStoreFile("user.pb") }
+
+    @Provides
+    @Singleton
+    fun providePreferencesDataStore(
+        @ApplicationContext context: Context,
+        serializer: PreferencesSerializer,
+    ): DataStore<PreferencesProto> =
+        DataStoreFactory.create(serializer = serializer) { context.dataStoreFile("preferences.pb") }
 }

@@ -32,6 +32,11 @@ class FakeSessionLocalDataSource(
         return Result.Success(Unit)
     }
 
+    override suspend fun updateUser(user: User): Result<Unit> {
+        userFlow.value = user
+        return Result.Success(Unit)
+    }
+
     override suspend fun clear(): Result<Unit> {
         sessionFlow.value = null
         userFlow.value = null

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "com.mirabilis.data.profile.preferences";
+option java_multiple_files = true;
+
+// Local user preferences (ADR-0005: single typed object -> DataStore). Stored ENCRYPTED at rest via
+// Android Keystore (see PreferencesSerializer). Confined to :data; mapped straight to UserPreferences.
+//
+// `notifications_disabled` is inverted on purpose: the proto3 zero value (false) then maps to the
+// domain default `notificationsEnabled = true`, so an unset store reads as notifications ON.
+message PreferencesProto {
+  ThemeProto theme = 1;
+  bool notifications_disabled = 2;
+}
+
+enum ThemeProto {
+  THEME_SYSTEM = 0;
+  THEME_LIGHT = 1;
+  THEME_DARK = 2;
+}

@@ -12,6 +12,7 @@ interface IAuthRemoteDataSource {
     suspend fun verifyOtp(verificationToken: String, code: String): Result<VerifyResponseRemote>
     suspend fun refresh(refreshToken: String): Result<RefreshResponseRemote>
     suspend fun me(): Result<MeResponseRemote>
+    suspend fun updateProfile(displayName: String): Result<MeResponseRemote>
 }
 
 class AuthRemoteDataSource @Inject constructor(
@@ -29,4 +30,7 @@ class AuthRemoteDataSource @Inject constructor(
         safeCall { api.refresh(RefreshRequest(refreshToken)) }
 
     override suspend fun me() = safeCall { api.me() }
+
+    override suspend fun updateProfile(displayName: String) =
+        safeCall { api.updateProfile(UpdateProfileRequest(displayName)) }
 }

@@ -8,18 +8,18 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Create `:feature:profile` module: add to `settings.gradle.kts`; `feature/profile/build.gradle.kts` (deps `:domain`,`:core`,`:core-ui`, Compose, Hilt, hilt-navigation-compose); namespace/manifest.
+- [x] T001 Create `:feature:profile` module: add to `settings.gradle.kts`; `feature/profile/build.gradle.kts` (deps `:domain`,`:core`,`:core-ui`, Compose, Hilt, hilt-navigation-compose); namespace/manifest.
 
 ## Phase 2: Foundational (blocking)
 
-- [ ] T002 [P] `:domain` `UserPreferences` + `Theme` enum in `domain/src/main/kotlin/com/mirabilis/domain/profile/model/`
-- [ ] T003 [P] `:domain` `IProfileRepository` + `IPreferencesRepository` in `domain/src/main/kotlin/com/mirabilis/domain/profile/repository/`
-- [ ] T004 [P] `:data` `preferences.proto` in `data/src/main/proto/preferences.proto`
-- [ ] T005 `:data` `PreferencesProto` `Serializer` (encrypted, reuse `CryptoManager`) + `PreferencesLocalDataSource` in `data/.../profile/preferences/` — depends T004
-- [ ] T006 `:data` add `PATCH /me` to `AuthApi` + `UpdateProfileRequest`/reuse `MeResponseRemote`; implement in `FakeAuthApi` in `data/.../auth/network/`
-- [ ] T007 `:data` mappers `PreferencesProto ↔ UserPreferences` in `data/.../profile/mapper/`
-- [ ] T008 `:data` `ProfileRepository` (updateDisplayName → PATCH /me → persist `UserProto`) + `PreferencesRepository` impls + `@Binds` in `data/.../profile/` — depends T003,T005,T006,T007
-- [ ] T009 `:app` provide the Preferences `DataStore<PreferencesProto>` in `DataStoreModule` — depends T005
+- [x] T002 [P] `:domain` `UserPreferences` + `Theme` enum in `domain/src/main/kotlin/com/mirabilis/domain/profile/model/`
+- [x] T003 [P] `:domain` `IProfileRepository` + `IPreferencesRepository` in `domain/src/main/kotlin/com/mirabilis/domain/profile/repository/`
+- [x] T004 [P] `:data` `preferences.proto` in `data/src/main/proto/preferences.proto`
+- [x] T005 `:data` `PreferencesProto` `Serializer` (encrypted, reuse `CryptoManager`) + `PreferencesLocalDataSource` in `data/.../profile/preferences/` — depends T004
+- [x] T006 `:data` add `PATCH /me` to `AuthApi` + `UpdateProfileRequest`/reuse `MeResponseRemote`; implement in `FakeAuthApi` in `data/.../auth/network/`
+- [x] T007 `:data` mappers `PreferencesProto ↔ UserPreferences` in `data/.../profile/mapper/`
+- [x] T008 `:data` `ProfileRepository` (updateDisplayName → PATCH /me → persist `UserProto`) + `PreferencesRepository` impls + `@Binds` in `data/.../profile/` — depends T003,T005,T006,T007
+- [x] T009 `:app` provide the Preferences `DataStore<PreferencesProto>` in `DataStoreModule` — depends T005
 
 ## Phase 3: US1 — View my profile (P1) 🎯 MVP
 
