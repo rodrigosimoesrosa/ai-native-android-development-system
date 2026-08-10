@@ -11,6 +11,11 @@ import com.mirabilis.core.ui.mvi.UiIntent
 import com.mirabilis.core.ui.mvi.UiState
 import com.mirabilis.domain.auth.model.User
 import com.mirabilis.domain.auth.usecase.ObserveUserUseCase
+import com.mirabilis.domain.profile.model.Theme
+import com.mirabilis.domain.profile.model.UserPreferences
+import com.mirabilis.domain.profile.usecase.ObservePreferencesUseCase
+import com.mirabilis.domain.profile.usecase.SetNotificationsUseCase
+import com.mirabilis.domain.profile.usecase.SetThemeUseCase
 import com.mirabilis.domain.profile.usecase.UpdateDisplayNameUseCase
 import com.mirabilis.feature.profile.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,12 +33,16 @@ data class ProfileUiState(
     val nameDraft: String = "",
     val isSaving: Boolean = false,
     val saveError: String? = null,
+    // US3 — preferences
+    val preferences: UserPreferences = UserPreferences(),
 ) : UiState
 
 sealed interface ProfileIntent : UiIntent {
     data object Retry : ProfileIntent
     data class NameChanged(val value: String) : ProfileIntent
     data object Save : ProfileIntent
+    data class SetTheme(val theme: Theme) : ProfileIntent
+    data class SetNotifications(val enabled: Boolean) : ProfileIntent
 }
 
 sealed interface ProfileEvent : UiEvent {
@@ -44,6 +53,7 @@ sealed interface ProfileEvent : UiEvent {
     data object Saving : ProfileEvent
     data object Saved : ProfileEvent
     data class SaveFailed(val message: String) : ProfileEvent
+    data class PreferencesLoaded(val preferences: UserPreferences) : ProfileEvent
 }
 
 /** Profile has no one-shot effects; the route guard is handled at the navigation layer (FR-005). */
@@ -54,12 +64,18 @@ sealed interface ProfileEffect : UiEffect
 class ProfileViewModel @Inject constructor(
     private val observeUser: ObserveUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,
+    observePreferences: ObservePreferencesUseCase,
+    private val setTheme: SetThemeUseCase,
+    private val setNotifications: SetNotificationsUseCase,
 ) : MVIViewModel<ProfileUiState, ProfileEvent, ProfileEffect, ProfileIntent>() {
 
     private var userJob: Job? = null
 
     init {
         loadUser()
+        observePreferences()
+            .onEach { prefs -> setEvent { ProfileEvent.PreferencesLoaded(prefs) } }
+            .launchIn(viewModelScope)
     }
 
     override fun getInitial() = ProfileUiState()
@@ -69,6 +85,8 @@ class ProfileViewModel @Inject constructor(
             ProfileIntent.Retry -> loadUser()
             is ProfileIntent.NameChanged -> setEvent { ProfileEvent.DraftChanged(intent.value) }
             ProfileIntent.Save -> save()
+            is ProfileIntent.SetTheme -> viewModelScope.launch { setTheme(intent.theme) }
+            is ProfileIntent.SetNotifications -> viewModelScope.launch { setNotifications(intent.enabled) }
         }
     }
 
@@ -113,5 +131,6 @@ class ProfileViewModel @Inject constructor(
             ProfileEvent.Saving -> oldState.copy(isSaving = true, saveError = null)
             ProfileEvent.Saved -> oldState.copy(isSaving = false, saveError = null)
             is ProfileEvent.SaveFailed -> oldState.copy(isSaving = false, saveError = event.message)
+            is ProfileEvent.PreferencesLoaded -> oldState.copy(preferences = event.preferences)
         }
 }

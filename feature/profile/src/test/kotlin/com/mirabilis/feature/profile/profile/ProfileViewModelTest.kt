@@ -6,7 +6,13 @@ import com.mirabilis.core.result.Result
 import com.mirabilis.domain.auth.model.User
 import com.mirabilis.domain.auth.repository.ISessionRepository
 import com.mirabilis.domain.auth.usecase.ObserveUserUseCase
+import com.mirabilis.domain.profile.model.Theme
+import com.mirabilis.domain.profile.model.UserPreferences
+import com.mirabilis.domain.profile.repository.IPreferencesRepository
 import com.mirabilis.domain.profile.repository.IProfileRepository
+import com.mirabilis.domain.profile.usecase.ObservePreferencesUseCase
+import com.mirabilis.domain.profile.usecase.SetNotificationsUseCase
+import com.mirabilis.domain.profile.usecase.SetThemeUseCase
 import com.mirabilis.domain.profile.usecase.UpdateDisplayNameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -57,10 +63,28 @@ class ProfileViewModelTest {
         }
     }
 
+    private class FakePrefs(initial: UserPreferences = UserPreferences()) : IPreferencesRepository {
+        val state = MutableStateFlow(initial)
+        override fun observe(): Flow<UserPreferences> = state
+        override suspend fun setTheme(theme: Theme): Result<Unit> {
+            state.value = state.value.copy(theme = theme); return Result.Success(Unit)
+        }
+        override suspend fun setNotificationsEnabled(enabled: Boolean): Result<Unit> {
+            state.value = state.value.copy(notificationsEnabled = enabled); return Result.Success(Unit)
+        }
+    }
+
     private fun viewModel(
         session: FakeSession,
         profile: IProfileRepository = FakeProfile(session),
-    ) = ProfileViewModel(ObserveUserUseCase(session), UpdateDisplayNameUseCase(profile))
+        prefs: IPreferencesRepository = FakePrefs(),
+    ) = ProfileViewModel(
+        ObserveUserUseCase(session),
+        UpdateDisplayNameUseCase(profile),
+        ObservePreferencesUseCase(prefs),
+        SetThemeUseCase(prefs),
+        SetNotificationsUseCase(prefs),
+    )
 
     @Test
     fun `loads the authenticated user`() = runTest(dispatcher) {
@@ -123,5 +147,21 @@ class ProfileViewModelTest {
         assertFalse(s.isSaving)
         assertEquals("That name isn't valid. Please try another.", s.saveError)
         assertEquals("Ada Lovelace", s.user?.displayName)
+    }
+
+    @Test
+    fun `toggling preferences is persisted and reflected in state`() = runTest(dispatcher) {
+        val prefs = FakePrefs()
+        val vm = viewModel(FakeSession(user), prefs = prefs)
+        advanceUntilIdle()
+        assertEquals(Theme.System, vm.state.value.preferences.theme)
+
+        vm.setIntent { ProfileIntent.SetTheme(Theme.Dark) }
+        vm.setIntent { ProfileIntent.SetNotifications(false) }
+        advanceUntilIdle()
+
+        assertEquals(Theme.Dark, vm.state.value.preferences.theme)
+        assertFalse(vm.state.value.preferences.notificationsEnabled)
+        assertEquals(Theme.Dark, prefs.state.value.theme)
     }
 }

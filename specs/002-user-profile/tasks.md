@@ -38,10 +38,10 @@
 
 ## Phase 5: US3 — Set my preferences (P3)
 
-- [ ] T019 [P] [US3] Tests: `ObservePreferences`/`SetTheme`/`SetNotifications` + persistence across reload in `domain`/`data` tests
-- [ ] T020 [P] [US3] `ObservePreferencesUseCase`, `SetThemeUseCase`, `SetNotificationsUseCase` in `domain/.../profile/usecase/`
-- [ ] T021 [US3] Preferences intents in `ProfileViewModel` + toggles (theme, notifications) in `ProfileScreen` — depends T020, T008
-- [ ] T022 [US3] Apply the `theme` preference to `MaterialTheme` in `:app` (or a theme holder) — depends T020
+- [x] T019 [P] [US3] Tests: `ObservePreferences`/`SetTheme`/`SetNotifications` + persistence across reload in `domain`/`data` tests
+- [x] T020 [P] [US3] `ObservePreferencesUseCase`, `SetThemeUseCase`, `SetNotificationsUseCase` in `domain/.../profile/usecase/`
+- [x] T021 [US3] Preferences intents in `ProfileViewModel` + toggles (theme, notifications) in `ProfileScreen` — depends T020, T008
+- [x] T022 [US3] Apply the `theme` preference to `MaterialTheme` in `:app` (or a theme holder) — depends T020
 
 ## Phase 6: Polish
 
