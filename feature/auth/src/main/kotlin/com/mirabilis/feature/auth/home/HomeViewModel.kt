@@ -9,8 +9,12 @@ import com.mirabilis.core.ui.mvi.UiIntent
 import com.mirabilis.core.ui.mvi.UiState
 import com.mirabilis.domain.auth.model.User
 import com.mirabilis.domain.auth.usecase.GetCurrentUserUseCase
+import com.mirabilis.domain.auth.usecase.ObserveAuthStateUseCase
+import com.mirabilis.domain.auth.usecase.SignOutUseCase
 import com.mirabilis.feature.auth.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +26,7 @@ data class HomeUiState(
 
 sealed interface HomeIntent : UiIntent {
     data object Retry : HomeIntent
+    data object SignOut : HomeIntent
 }
 
 sealed interface HomeEvent : UiEvent {
@@ -30,14 +35,26 @@ sealed interface HomeEvent : UiEvent {
     data class Failed(val message: String) : HomeEvent
 }
 
-/** US1: Home shows the authenticated user, fetched from the protected /me endpoint (FR-012). */
+sealed interface HomeEffect : UiEffect {
+    /** Session ended — sign-out (FR-011) or a non-renewable session (FR-010). */
+    data object NavigateToSendPhone : HomeEffect
+}
+
+/** US1: show the authenticated user (FR-012). US3: sign out / route out when the session ends. */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getCurrentUser: GetCurrentUserUseCase,
-) : MVIViewModel<HomeUiState, HomeEvent, UiEffect, HomeIntent>() {
+    private val signOutUseCase: SignOutUseCase,
+    observeAuthState: ObserveAuthStateUseCase,
+) : MVIViewModel<HomeUiState, HomeEvent, HomeEffect, HomeIntent>() {
 
     init {
         load()
+        // One route out for BOTH endings: explicit sign-out AND non-renewable teardown (the
+        // authenticator clears the session in the background → auth-state flips to false).
+        observeAuthState()
+            .onEach { authenticated -> if (!authenticated) setEffect { HomeEffect.NavigateToSendPhone } }
+            .launchIn(viewModelScope)
     }
 
     override fun getInitial() = HomeUiState()
@@ -45,6 +62,7 @@ class HomeViewModel @Inject constructor(
     override fun onIntent(intent: HomeIntent) {
         when (intent) {
             HomeIntent.Retry -> load()
+            HomeIntent.SignOut -> viewModelScope.launch { signOutUseCase() }
         }
     }
 

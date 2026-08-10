@@ -56,3 +56,23 @@ Green across the board = feature done (constitution Principle III).
 - **Single-flight**: scenario 9 asserts MockWebServer received exactly one `/auth/refresh` request.
 - **Anti-loop**: a `401` on `/auth/refresh` does not recurse; it ends the session (scenario 11).
 - **Transient challenge**: no DataStore/Room write occurs for the verification token (scenario 12).
+
+## Automated coverage (as built)
+
+Run `./gradlew test` (all JVM unit tests). Instrumented rows need `connectedAndroidTest` (emulator).
+
+| # | Covered by | Kind |
+|---|---|---|
+| 1, 5 | `RequestOtpUseCaseTest`, `SendPhoneViewModelTest` | JVM ✅ |
+| 2, 4 | `VerifyOtpUseCaseTest`, `AuthApiTest` (200/400/410), `VerifyPhoneViewModelTest` | JVM ✅ |
+| 2a | ≤3 primary actions | manual/UX |
+| 3 | `HomeViewModelTest` | JVM ✅ |
+| 6 | `VerifyPhoneViewModelTest` (resend), `ErrorMessagesTest` (429 → FR-014) | JVM ✅ |
+| 7 | `SessionRepositoryTest` (restore), `RootViewModel` routing | JVM ✅ (full flow: instrumented) |
+| 8 | `TokenAuthenticatorTest` (401→refresh→retry) | JVM ✅ |
+| 9 | `TokenAuthenticatorConcurrencyTest` (exactly one refresh) | JVM ✅ |
+| 10 | `SignOutUseCaseTest`, `HomeViewModelTest` (sign-out routes) | JVM ✅ |
+| 11 | `TokenAuthenticatorLogoutTest`, `HomeViewModelTest` (auth-state false) | JVM ✅ |
+| 12 | `VerifyPhoneViewModelTest` (missing challenge → SendPhone); `PendingVerificationStore` is in-memory | JVM ✅ |
+| 13 | `AuthApiTest` (network failure → `AppError.Network`), `ErrorMessagesTest` | JVM ✅ |
+| 14 | `CryptoManager` + Proto serializers (Keystore AES/GCM) | instrumented (code-verified) |

@@ -55,7 +55,7 @@ graph TD
 ## Foundation
 
 - [Vision & Architecture](docs/00-vision-and-architecture.md) — what this project is and why.
-- [Constitution](docs/constitution.md) — the rules humans and agents build by (v1.0.0).
+- [Constitution](docs/constitution.md) — the rules humans and agents build by (v1.1.0).
 
 ## Decisions (ADRs)
 

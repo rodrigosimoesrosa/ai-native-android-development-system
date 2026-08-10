@@ -1,6 +1,7 @@
 package com.mirabilis.feature.auth.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,7 +49,14 @@ fun AuthNavGraph(
         }
 
         composable(AuthRoutes.HOME) {
-            HomeScreen()
+            HomeScreen(
+                onSignedOut = {
+                    navController.navigate(AuthRoutes.SEND_PHONE) {
+                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+            )
         }
     }
 }

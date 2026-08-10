@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,13 +16,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mirabilis.feature.auth.CollectEffects
 
 @Composable
 fun HomeScreen(
+    onSignedOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+
+    CollectEffects(viewModel.effects) { effect ->
+        if (effect is HomeEffect.NavigateToSendPhone) onSignedOut()
+    }
 
     Column(
         modifier = modifier
@@ -38,6 +45,9 @@ fun HomeScreen(
                 Text(text = "Welcome", style = MaterialTheme.typography.headlineMedium)
                 Text(text = user.displayName ?: user.phone, style = MaterialTheme.typography.titleLarge)
                 Text(text = user.phone)
+                TextButton(onClick = { viewModel.setIntent { HomeIntent.SignOut } }) {
+                    Text("Sign out")
+                }
             }
 
             else -> {

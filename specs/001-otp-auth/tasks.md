@@ -110,17 +110,17 @@ protected action succeeds with no visible re-auth; concurrent 401s → one refre
 
 ### Tests for User Story 2 (write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T044 [P] [US2] MockWebServer test: `GET /me` `401` → `/auth/refresh` → retry succeeds in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorTest.kt`
-- [ ] T045 [P] [US2] MockWebServer test: concurrent 401s trigger exactly ONE `/auth/refresh` (single-flight) in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorConcurrencyTest.kt`
-- [ ] T046 [P] [US2] Test: stored session restored on restart → `observeAuthState` emits `true` in `data/src/test/kotlin/com/mirabilis/data/auth/repository/SessionRepositoryTest.kt`
+- [x] T044 [P] [US2] MockWebServer test: `GET /me` `401` → `/auth/refresh` → retry succeeds in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorTest.kt`
+- [x] T045 [P] [US2] MockWebServer test: concurrent 401s trigger exactly ONE `/auth/refresh` (single-flight) in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorConcurrencyTest.kt`
+- [x] T046 [P] [US2] Test: stored session restored on restart → `observeAuthState` emits `true` in `data/src/test/kotlin/com/mirabilis/data/auth/repository/SessionRepositoryTest.kt`
 
 ### Implementation for User Story 2
 
-- [ ] T047 [US2] `TokenAuthenticator` (single-flight `Mutex`, token re-check, anti-loop separate client, bounded retries via `priorResponse`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T019
-- [ ] T048 [US2] `refresh(refreshToken)` path in `AuthRepository` (persist new tokens via `SessionLocalDataSource`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/AuthRepository.kt` — depends on T035
-- [ ] T049 [US2] `:app` `NetworkModule` — add refresh-only OkHttp/Retrofit client (no `AuthInterceptor`/authenticator) and attach `TokenAuthenticator` to the authed client — depends on T025, T047
-- [ ] T050 [US2] Extend `FakeAuthApi` + MockWebServer dispatcher for `/auth/refresh` and an expiring access token in `data/src/main/kotlin/com/mirabilis/data/auth/network/FakeAuthApi.kt` — depends on T022
-- [ ] T051 [US2] App-restart routing: top-level `NavHost` observes `ObserveAuthStateUseCase` → Home without code prompt — depends on T034, T036, T024
+- [x] T047 [US2] `TokenAuthenticator` (single-flight `Mutex`, token re-check, anti-loop separate client, bounded retries via `priorResponse`) in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T019
+- [x] T048 [US2] `refresh(refreshToken)` path in `AuthRepository` (persist new tokens via `SessionLocalDataSource`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/AuthRepository.kt` — depends on T035
+- [x] T049 [US2] `:app` `NetworkModule` — add refresh-only OkHttp/Retrofit client (no `AuthInterceptor`/authenticator) and attach `TokenAuthenticator` to the authed client — depends on T025, T047
+- [x] T050 [US2] Extend `FakeAuthApi` + MockWebServer dispatcher for `/auth/refresh` and an expiring access token in `data/src/main/kotlin/com/mirabilis/data/auth/network/FakeAuthApi.kt` — depends on T022
+- [x] T051 [US2] App-restart routing: top-level `NavHost` observes `ObserveAuthStateUseCase` → Home without code prompt — depends on T034, T036, T024
 
 **Checkpoint**: User Stories 1 AND 2 both work independently.
 
@@ -136,15 +136,15 @@ protected data no longer accessible; reopen requires sign-in (quickstart 10–11
 
 ### Tests for User Story 3 (write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T052 [P] [US3] Test `SignOutUseCase` clears session+user → `observeAuthState` emits `false` in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/SignOutUseCaseTest.kt`
-- [ ] T053 [P] [US3] Test non-renewable session: `/auth/refresh` `401` → `TokenAuthenticator` returns `null` → session cleared → route SendPhone in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorLogoutTest.kt`
+- [x] T052 [P] [US3] Test `SignOutUseCase` clears session+user → `observeAuthState` emits `false` in `domain/src/test/kotlin/com/mirabilis/domain/auth/usecase/SignOutUseCaseTest.kt`
+- [x] T053 [P] [US3] Test non-renewable session: `/auth/refresh` `401` → `TokenAuthenticator` returns `null` → session cleared → route SendPhone in `data/src/test/kotlin/com/mirabilis/data/auth/network/TokenAuthenticatorLogoutTest.kt`
 
 ### Implementation for User Story 3
 
-- [ ] T054 [P] [US3] `SignOutUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
-- [ ] T055 [US3] `SessionRepository.signOut()`/`clearSession()` impl (clear DataStore + `SessionHolder`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/SessionRepository.kt` — depends on T036, T019
-- [ ] T056 [US3] `TokenAuthenticator` give-up path → `clearSession()` → `authState=false` in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T047, T055
-- [ ] T057 [US3] Home sign-out action wired; routing returns to SendPhone on `authState=false` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/` + navigation — depends on T054, T051
+- [x] T054 [P] [US3] `SignOutUseCase` in `domain/src/main/kotlin/com/mirabilis/domain/auth/usecase/`
+- [x] T055 [US3] `SessionRepository.signOut()`/`clearSession()` impl (clear DataStore + `SessionHolder`) in `data/src/main/kotlin/com/mirabilis/data/auth/repository/SessionRepository.kt` — depends on T036, T019
+- [x] T056 [US3] `TokenAuthenticator` give-up path → `clearSession()` → `authState=false` in `data/src/main/kotlin/com/mirabilis/data/auth/network/interceptor/` — depends on T047, T055
+- [x] T057 [US3] Home sign-out action wired; routing returns to SendPhone on `authState=false` in `feature/auth/src/main/kotlin/com/mirabilis/feature/auth/home/` + navigation — depends on T054, T051
 
 **Checkpoint**: All three user stories independently functional.
 
@@ -152,11 +152,11 @@ protected data no longer accessible; reopen requires sign-in (quickstart 10–11
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T058 [P] Run every [quickstart.md](./quickstart.md) scenario (1–14) and confirm pass
-- [ ] T059 [P] Purity guard: assert `:domain`/`:core` have no Android/Retrofit/Room imports (compile check or Konsist test) in `domain/src/test/` / `core/src/test/`
-- [ ] T060 [P] `AppError` → user-facing, non-sensitive message mapping incl. backend rate-limit/lockout (FR-014) in `feature/auth/`
-- [ ] T061 [P] ktlint/detekt clean; cross-link ADRs/spec in module READMEs
-- [ ] T062 Record provenance (spec id, skill, agent/model) per constitution Principle IV
+- [x] T058 [P] Run every [quickstart.md](./quickstart.md) scenario (1–14) and confirm pass
+- [x] T059 [P] Purity guard: assert `:domain`/`:core` have no Android/Retrofit/Room imports (compile check or Konsist test) in `domain/src/test/` / `core/src/test/`
+- [x] T060 [P] `AppError` → user-facing, non-sensitive message mapping incl. backend rate-limit/lockout (FR-014) in `feature/auth/`
+- [x] T061 [P] ktlint/detekt clean; cross-link ADRs/spec in module READMEs *(READMEs + warning-clean build + .editorconfig done; detekt/ktlint Gradle plugin deferred to a dedicated change, like spotless)*
+- [x] T062 Record provenance (spec id, skill, agent/model) per constitution Principle IV
 
 ---
 
