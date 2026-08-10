@@ -99,7 +99,9 @@ core/ core-ui/ domain/ data/ feature/<x>/ app/   # the Android proving ground
 
 The app opens on **SendPhone** and is backed by a `FakeAuthApi` (no real backend, ADR-0006 §6).
 Sign in with any valid international phone (e.g. `+15551234567`) and the fake code **`123456`** to
-reach an authenticated **Home**.
+reach the authenticated **navigation shell** (spec 003): a bottom bar switching between **Home** and
+**Profile** (spec 002) — view your details, edit your display name, and set theme + notification
+preferences, each tab keeping its own state.
 
 ---
 

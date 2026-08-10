@@ -9,6 +9,11 @@ description: "Task list template for feature implementation"
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
+**Governing decisions (ADRs)**: [REQUIRED — list the `decisions/ADR-####-*.md` this feature is bound by, e.g.
+[ADR-0003](../../decisions/ADR-0003-android-architecture-clean-mvi.md) (Clean+MVI),
+[ADR-0004](../../decisions/ADR-0004-dependency-injection-hilt.md) (Hilt). Implement WITHIN these; a task
+that would conflict with an ADR is a human `architecture-change` gate — stop and escalate, never self-approve.]
+
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
@@ -35,6 +40,11 @@ description: "Task list template for feature implementation"
   - Feature requirements from plan.md
   - Entities from data-model.md
   - Endpoints from contracts/
+  - Governing decisions from decisions/ — the command MUST fill the "Governing decisions (ADRs)"
+    field above with the actual ADRs this feature touches (read plan.md's inherited architecture),
+    AND append the relevant `(see ADR-####)` link inline on any task that implements or depends on
+    an architectural decision (module boundaries, DI, persistence, networking/auth, quality gates).
+    This makes the ADR context explicit so it is read on demand — nothing auto-injects it.
 
   Tasks MUST be organized by user story so each story can be:
   - Implemented independently
