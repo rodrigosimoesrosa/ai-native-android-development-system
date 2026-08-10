@@ -32,6 +32,7 @@ kotlin {
 dependencies {
     implementation(project(":core-ui"))
     implementation(project(":feature:auth")) // hosts Home (001) + reuses AuthStartState gating type
+    implementation(project(":feature:profile")) // hosts the Profile screen (002) at the shared route
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

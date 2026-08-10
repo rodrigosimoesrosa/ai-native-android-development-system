@@ -1,20 +1,15 @@
 package com.mirabilis.feature.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
@@ -24,14 +19,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mirabilis.feature.auth.home.HomeScreen
+import com.mirabilis.feature.profile.navigation.profileScreen
 
 /**
  * Whether the Profile destination's route (owned by `002-user-profile`) is present in this build.
- * On the `003-navigation` branch (cut from main, without 002) it is **false**, so the Profile tab
- * degrades gracefully (FR-006). At the merge gate with 002 this flips to `true` and the placeholder is
- * replaced by the real Profile screen hosted at the shared `profile` route id. The single seam with 002.
+ * Now that `:feature:profile` is merged, it is **true** and the shell hosts the real Profile screen at
+ * the shared `profile` route id (the single seam with 002). The flag + [NavShell]'s `profileAvailable`
+ * parameter keep the FR-006 graceful-degradation path exercisable (tab disabled + no crash).
  */
-const val PROFILE_ROUTE_AVAILABLE: Boolean = false
+const val PROFILE_ROUTE_AVAILABLE: Boolean = true
 
 /**
  * The authenticated navigation shell (US1): a `Scaffold` + bottom `NavigationBar` over an inner
@@ -60,10 +56,8 @@ fun NavShell(
         composable(NavDestinations.HOME) {
             HomeScreen(onSignedOut = onSignedOut)
         }
-        composable(NavDestinations.PROFILE) {
-            // Real Profile (002) is hosted here at merge; until then, a graceful placeholder (FR-006).
-            ProfileUnavailablePlaceholder()
-        }
+        // Real Profile (002) hosted at the shared `profile` route — :feature:profile owns the screen.
+        profileScreen()
     }
 }
 
@@ -118,24 +112,6 @@ fun NavShellScaffold(
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding),
             builder = content,
-        )
-    }
-}
-
-/** FR-006: the Profile route is unavailable in this build; the tab is disabled and this is its slot. */
-@Composable
-private fun ProfileUnavailablePlaceholder() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = "Profile is not available yet.", style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = "It arrives when the profile feature is merged.",
-            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

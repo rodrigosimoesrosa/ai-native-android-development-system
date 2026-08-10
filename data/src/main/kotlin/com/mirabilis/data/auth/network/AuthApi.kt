@@ -3,6 +3,7 @@ package com.mirabilis.data.auth.network
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 
 /**
@@ -25,6 +26,9 @@ interface AuthApi {
 
     @GET("me")
     suspend fun me(): MeResponseRemote
+
+    @PATCH("me")
+    suspend fun updateProfile(@Body body: UpdateProfileRequest): MeResponseRemote
 }
 
 /** Header name shared by the API annotations and the interceptor (avoids a string literal drift). */

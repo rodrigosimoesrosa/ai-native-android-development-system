@@ -37,4 +37,17 @@ class DomainPurityTest {
             offenders.isEmpty(),
         )
     }
+
+    @Test
+    fun `profile package is present so the purity walk actually covers it`() {
+        // Guards that the framework-free scan above is not vacuously green for the profile feature
+        // (spec 002): the package must exist with sources for the walk to have inspected them.
+        val profileDir = File("src/main/kotlin/com/mirabilis/domain/profile")
+        val sources = profileDir.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+
+        assertTrue(
+            "expected pure :domain/profile sources at ${profileDir.absolutePath}",
+            sources.isNotEmpty(),
+        )
+    }
 }

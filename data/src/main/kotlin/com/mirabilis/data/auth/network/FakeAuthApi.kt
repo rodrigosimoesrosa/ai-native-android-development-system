@@ -20,6 +20,9 @@ import javax.inject.Singleton
 @Singleton
 class FakeAuthApi @Inject constructor() : AuthApi {
 
+    // Mutable so a display-name update (PATCH /me) is reflected by subsequent GET /me (FR-002/003).
+    private var currentUser = demoUser
+
     override suspend fun requestOtp(body: OtpRequestRequest): OtpRequestResponseRemote {
         delay(NETWORK_LATENCY_MS)
         return OtpRequestResponseRemote(verificationToken = "vt_${UUID.randomUUID()}")
@@ -48,7 +51,14 @@ class FakeAuthApi @Inject constructor() : AuthApi {
 
     override suspend fun me(): MeResponseRemote {
         delay(NETWORK_LATENCY_MS)
-        return MeResponseRemote(user = demoUser)
+        return MeResponseRemote(user = currentUser)
+    }
+
+    override suspend fun updateProfile(body: UpdateProfileRequest): MeResponseRemote {
+        delay(NETWORK_LATENCY_MS)
+        if (body.displayName.isBlank()) throw httpError(400, """{"error":"invalid_display_name"}""")
+        currentUser = currentUser.copy(displayName = body.displayName)
+        return MeResponseRemote(user = currentUser)
     }
 
     private fun httpError(code: Int, json: String): HttpException =
