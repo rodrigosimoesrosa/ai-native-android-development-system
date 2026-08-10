@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Auto-provenance (ADR-0010, Constitution IV): stamp Provenance-* trailers on every commit — in git
+# metadata, never in app code. Enable per clone with: git config core.hooksPath githooks
+# (or run scripts/setup-hooks.sh). Never double-stamps.
+set -uo pipefail
+
+msg_file="${1:-}"
+src="${2:-}"
+[ -z "$msg_file" ] && exit 0
+
+# Skip merges/squashes (git supplies those messages).
+case "$src" in
+  merge|squash) exit 0 ;;
+esac
+
+# Already stamped (e.g. amend)? Leave it.
+grep -qiE '^Provenance-Spec:' "$msg_file" 2>/dev/null && exit 0
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo -)"
+
+# Spec: a feature branch (NNN-name) or one matching a specs/ dir; otherwise none.
+spec="-"
+if [ -d "$root/specs/$branch" ] || printf '%s' "$branch" | grep -qE '^[0-9]{3}-'; then
+  spec="$branch"
+fi
+
+# Agent/Method/Model from the driver's context; default to a human, manual change.
+agent="${PROVENANCE_AGENT:-human}"
+method="${PROVENANCE_METHOD:-manual}"
+model="${PROVENANCE_MODEL:--}"
+
+{
+  printf '\n'
+  printf 'Provenance-Spec: %s\n'   "$spec"
+  printf 'Provenance-Method: %s\n' "$method"
+  printf 'Provenance-Agent: %s\n'  "$agent"
+  printf 'Provenance-Model: %s\n'  "$model"
+} >> "$msg_file"
+
+exit 0

@@ -74,11 +74,13 @@ model. See ADR-0003/0004/0005/0006 for the binding decisions.
 ## Repository layout
 
 ```
-.specify/            # Spec Kit engine: templates, scripts, constitution (the SDD adapter)
+methods/             # the neutral, tool-agnostic "how" of each capability (ADR-0008)
+adapters/            # thin tool layer that invokes methods (claude-code active, opencode planned)
+.specify/            # Spec Kit engine: templates, scripts, constitution (part of the tool adapter)
 decisions/           # ADRs — every non-trivial decision, cross-linked
 docs/                # Vision & architecture (the "why")
 specs/<NNN-name>/    # One folder per feature: spec, plan, research, data-model, contracts, tasks
-scripts/             # gradle-verify.sh (the Stop-hook verification loop)
+scripts/             # gradle-verify.sh + guardrail checks (verification loop)
 .github/workflows/   # CI (the "green = done" merge gate)
 core/ core-ui/ domain/ data/ feature/<x>/ app/   # the Android proving ground
 ```
@@ -184,6 +186,28 @@ The verification loop closes **Principle III** on two sides:
 `specs/001-otp-auth/` is the first feature end-to-end: OTP phone auth with session continuity. It
 exercises the full read path (`GET /me`), write path (verify → persist encrypted session), and the
 transparent-refresh infrastructure — read it as the canonical template for a new feature.
+
+---
+
+## Run modes — human-paced & ai-paced
+
+The same loop runs two ways, sharing one neutral core (ADR-0009). A run mode is an **orchestration
+axis, not a fork** — only the **driver** and the **gate policy** ([`run-modes.yml`](run-modes.yml))
+differ.
+
+| | human-paced (default) | ai-paced |
+|---|---|---|
+| Driver | a person, turn by turn | an agent, autonomously |
+| Trigger | interactive session | an open spec (headless) |
+| Human gates | every checkpoint | **only** merge · architecture · dependency · release |
+
+**ai-paced is not "no humans":** it is autonomous only over small, verifiable units inside an
+already-approved spec, passes the **same** verification gate (tests + detekt + guardrails), and
+**escalates** the four mandatory gates. See [`methods/run-modes.md`](methods/run-modes.md). The
+ai-paced loop runs on a **tool-neutral harness** ([`scripts/ai-paced-run.sh`](scripts/ai-paced-run.sh))
+with a **pluggable brain**: [`adapters/claude-code/`](adapters/claude-code/README.md) (Claude Code) or
+[`adapters/opencode/`](adapters/opencode/README.md) (a **local** Ollama / LM Studio model). Swap the
+brain by choosing the launcher — the harness, gate, escalation, and provenance are unchanged.
 
 ---
 

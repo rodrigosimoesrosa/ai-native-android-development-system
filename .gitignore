@@ -37,6 +37,9 @@ captures/
 /out/
 **/out/
 
+# --- AI tooling (local, per-machine; written by adapters/opencode/run-ai-paced.sh) ---
+/opencode.json
+
 # --- Obsidian (commit shared vault config; ignore per-user state) ---
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json

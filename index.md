@@ -22,9 +22,12 @@ graph TD
     A5["ADR-0005 · Persistence: Room + DataStore"]
     A6["ADR-0006 · Networking + auth/refresh"]
     A7["ADR-0007 · Quality gates: detekt + guardrails"]
+    A8["ADR-0008 · methods/ + adapters/ layout"]
+    A9["ADR-0009 · Run modes: human/ai-paced"]
+    A10["ADR-0010 · Automated provenance + metrics"]
     KG["ADR (future) · Knowledge graph"]:::todo
-    MET["methods/"]:::todo
-    ADP["adapters/"]:::todo
+    MET["methods/ — neutral how"]
+    ADP["adapters/ — tool invocation"]
 
     IDX --> VIS
     IDX --> CON
@@ -35,8 +38,20 @@ graph TD
     IDX --> A5
     IDX --> A6
     IDX --> A7
+    IDX --> A8
     A7 --> A1
     A7 --> CON
+    A8 --> A1
+    A8 --> MET
+    A8 --> ADP
+    IDX --> A9
+    A9 --> A8
+    A9 --> CON
+    A9 --> MET
+    IDX --> A10
+    A10 --> CON
+    A10 --> MET
+    A10 --> A9
     A1 --> VIS
     A2 --> A1
     A2 --> VIS
@@ -49,9 +64,9 @@ graph TD
     CON --> A2
     CON --> A3
     CON --> A4
+    A1 --> MET
+    A1 --> ADP
     A1 -.-> KG
-    A1 -.-> MET
-    A1 -.-> ADP
 
     classDef todo stroke-dasharray: 5 5,opacity:0.55;
 ```
@@ -70,11 +85,19 @@ graph TD
 - [ADR-0005 — Local persistence: Room + Proto DataStore](decisions/ADR-0005-local-persistence-room-datastore.md)
 - [ADR-0006 — Networking + JWT auth/refresh strategy](decisions/ADR-0006-networking-and-auth-token-strategy.md)
 - [ADR-0007 — Quality gates: detekt + method guardrails](decisions/ADR-0007-quality-gates-detekt-and-method-guardrails.md)
+- [ADR-0008 — Materialize the methods/ + adapters/ layout](decisions/ADR-0008-methods-and-adapters-layout.md)
+- [ADR-0009 — Run modes: human-paced / ai-paced](decisions/ADR-0009-run-modes-human-paced-and-ai-paced.md)
+- [ADR-0010 — Automated provenance (commit trailers) + metrics](decisions/ADR-0010-automated-provenance-and-metrics.md)
+
+## Method layer (neutral core vs. adapters)
+
+The portability guarantee of ADR-0001, made concrete (ADR-0008):
+
+- [`methods/`](methods/README.md) — the tool-agnostic "how" of each capability.
+- [`adapters/`](adapters/README.md) — the thin, disposable tool layer ([claude-code](adapters/claude-code/README.md) active, [opencode](adapters/opencode/README.md) planned).
 
 ## Not created yet (dangling nodes — intentional)
 
 These appear grey in the graph until written:
 
 - ADR (future) — Knowledge-graph representation
-- `methods/` — the neutral "how" behind each skill
-- `adapters/` — tool-specific invocation layer

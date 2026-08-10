@@ -1,0 +1,45 @@
+# Run-mode gate policy (ADR-0009). Both modes run the SAME loop (methods/sdd-loop.md) and pass the
+# SAME verification gate (methods/verify-change.md); they differ only in the driver and this policy.
+#
+# gate value:
+#   human — work halts here and escalates for a person's approval.
+#   auto  — the driver may pass this autonomously (still bound by the verification gate).
+#
+# The four mandatory gates come from the constitution and stay `human` in BOTH modes. Autonomy in
+# ai-paced applies only to small verifiable units inside an already-approved specification.
+
+version: 1
+
+modes:
+  human-paced:
+    description: A person advances the loop turn by turn in an interactive session.
+    driver: human
+    gates:
+      merge: human
+      architecture-change: human
+      dependency-add: human
+      release: human
+
+  ai-paced:
+    description: >-
+      An agent is the autonomous executor of an approved plan: it works the approved task list to
+      completion (implement → verify → mark done → repeat) until the gate is green and the task list
+      has no open items, then opens a change request for review.
+    driver: agent
+    # The handoff boundary: ai-paced executes an APPROVED breakdown; it does not specify/plan.
+    input:
+      requires: an approved specs/<spec>/tasks.md   # produced + approved in human-paced first
+      unit: one unchecked task at a time
+    gates:
+      merge: human                 # a person always reviews and merges the produced change
+      architecture-change: human   # escalate — an agent must not self-approve an architecture decision
+      dependency-add: human        # escalate — an agent must not add a dependency on its own
+      release: human
+    autonomous_stop:
+      on_green: open-change-request
+      on_failure: bounded-retry-then-report
+      max_fix_iterations: 5
+
+# Everything not listed as a gate (implementing tasks within an approved spec, fixing until the
+# verification gate is green) is autonomous in ai-paced and human-driven in human-paced.
+default_mode: human-paced
