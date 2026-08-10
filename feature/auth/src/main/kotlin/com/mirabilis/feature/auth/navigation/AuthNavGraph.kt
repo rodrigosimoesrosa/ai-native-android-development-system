@@ -13,11 +13,19 @@ import com.mirabilis.feature.auth.verifyphone.VerifyPhoneScreen
  * Sign-in navigation (US1). Screens drive navigation via one-shot effects; the graph maps them to
  * `navController` calls. Top-level auth-state routing (start at Home when a session exists) lands in
  * User Story 2 (task T051).
+ *
+ * The `HOME` destination renders [authenticatedContent] — a slot so the navigation shell (003) can be
+ * hosted here (supplied by `:app`) without this module depending on it. It defaults to Home, so the
+ * post-verify landing works standalone. Its `onSignedOut` dismisses the authenticated area back to
+ * sign-in (FR-007).
  */
 @Composable
 fun AuthNavGraph(
     navController: NavHostController,
     startDestination: String = AuthRoutes.SEND_PHONE,
+    authenticatedContent: @Composable (onSignedOut: () -> Unit) -> Unit = { onSignedOut ->
+        HomeScreen(onSignedOut = onSignedOut)
+    },
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(AuthRoutes.SEND_PHONE) {
@@ -42,14 +50,12 @@ fun AuthNavGraph(
         }
 
         composable(AuthRoutes.HOME) {
-            HomeScreen(
-                onSignedOut = {
-                    navController.navigate(AuthRoutes.SEND_PHONE) {
-                        popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                },
-            )
+            authenticatedContent {
+                navController.navigate(AuthRoutes.SEND_PHONE) {
+                    popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
         }
     }
 }
