@@ -21,6 +21,7 @@ graph TD
     A4["ADR-0004 · DI with Hilt"]
     A5["ADR-0005 · Persistence: Room + DataStore"]
     A6["ADR-0006 · Networking + auth/refresh"]
+    A7["ADR-0007 · Quality gates: detekt + guardrails"]
     KG["ADR (future) · Knowledge graph"]:::todo
     MET["methods/"]:::todo
     ADP["adapters/"]:::todo
@@ -33,6 +34,9 @@ graph TD
     IDX --> A4
     IDX --> A5
     IDX --> A6
+    IDX --> A7
+    A7 --> A1
+    A7 --> CON
     A1 --> VIS
     A2 --> A1
     A2 --> VIS
@@ -65,6 +69,7 @@ graph TD
 - [ADR-0004 — Dependency Injection with Hilt](decisions/ADR-0004-dependency-injection-hilt.md)
 - [ADR-0005 — Local persistence: Room + Proto DataStore](decisions/ADR-0005-local-persistence-room-datastore.md)
 - [ADR-0006 — Networking + JWT auth/refresh strategy](decisions/ADR-0006-networking-and-auth-token-strategy.md)
+- [ADR-0007 — Quality gates: detekt + method guardrails](decisions/ADR-0007-quality-gates-detekt-and-method-guardrails.md)
 
 ## Not created yet (dangling nodes — intentional)
 

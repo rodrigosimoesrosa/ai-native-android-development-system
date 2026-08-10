@@ -3,8 +3,8 @@ package com.mirabilis.data.auth.di
 import com.mirabilis.data.auth.datastore.ISessionLocalDataSource
 import com.mirabilis.data.auth.datastore.SessionLocalDataSource
 import com.mirabilis.data.auth.network.AuthApi
-import com.mirabilis.data.auth.network.FakeAuthApi
 import com.mirabilis.data.auth.network.AuthRemoteDataSource
+import com.mirabilis.data.auth.network.FakeAuthApi
 import com.mirabilis.data.auth.network.IAuthRemoteDataSource
 import com.mirabilis.data.auth.network.RetrofitTokenRefresher
 import com.mirabilis.data.auth.network.TokenRefresher

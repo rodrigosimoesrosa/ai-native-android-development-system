@@ -22,6 +22,7 @@ interface ISessionLocalDataSource {
     suspend fun save(session: AuthSession, user: User): Result<Unit>
     suspend fun updateTokens(session: AuthSession): Result<Unit>
     suspend fun clear(): Result<Unit>
+
     /** Load the persisted tokens into the in-memory cache at startup (ADR-0006 §4). */
     suspend fun prime(): Result<Unit>
 }

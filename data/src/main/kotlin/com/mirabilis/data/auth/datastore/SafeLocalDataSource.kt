@@ -12,6 +12,8 @@ import kotlinx.coroutines.withContext
  */
 abstract class SafeLocalDataSource(private val ioDispatcher: CoroutineDispatcher) {
 
+    // Intentional error boundary (ADR-0003): any storage throwable becomes a typed AppError.
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
     protected suspend fun <T> safeCall(
         error: AppError = AppError.DataStore,
         block: suspend () -> T,

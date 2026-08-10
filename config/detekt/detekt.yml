@@ -1,0 +1,36 @@
+# detekt config (ADR-0007) — extends the default rules (buildUponDefaultConfig = true).
+# Only deltas from the defaults are listed. Line length aligns with .editorconfig (120).
+
+build:
+  maxIssues: 0
+
+formatting:
+  active: true
+  android: true
+  MaximumLineLength:
+    maxLineLength: 120
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
+  TooManyFunctions:
+    active: false
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  ReturnCount:
+    active: false
+  UnusedPrivateMember:
+    active: true
+  MagicNumber:
+    active: false
+
+naming:
+  FunctionNaming:
+    # Compose @Composable functions are PascalCase, and test method names use backtick sentences.
+    ignoreAnnotated: ['Composable']
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'

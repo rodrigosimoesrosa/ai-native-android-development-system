@@ -32,8 +32,11 @@ fun AuthSession.toProto(): SessionProto =
         .build()
 
 fun SessionProto.toDomain(): AuthSession? =
-    if (accessToken.isNullOrBlank()) null
-    else AuthSession(accessToken = accessToken, refreshToken = refreshToken, expiresInSeconds = expiresInSeconds)
+    if (accessToken.isNullOrBlank()) {
+        null
+    } else {
+        AuthSession(accessToken = accessToken, refreshToken = refreshToken, expiresInSeconds = expiresInSeconds)
+    }
 
 fun User.toProto(): UserProto =
     UserProto.newBuilder()
@@ -43,5 +46,8 @@ fun User.toProto(): UserProto =
         .build()
 
 fun UserProto.toDomain(): User? =
-    if (id.isNullOrBlank()) null
-    else User(id = id, phone = phone, displayName = displayName.ifBlank { null })
+    if (id.isNullOrBlank()) {
+        null
+    } else {
+        User(id = id, phone = phone, displayName = displayName.ifBlank { null })
+    }

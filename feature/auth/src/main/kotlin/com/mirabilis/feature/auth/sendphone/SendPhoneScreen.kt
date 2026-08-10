@@ -60,8 +60,11 @@ fun SendPhoneScreen(
             enabled = !state.isSubmitting && state.phone.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (state.isSubmitting) CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-            else Text("Send code")
+            if (state.isSubmitting) {
+                CircularProgressIndicator(modifier = Modifier.padding(4.dp))
+            } else {
+                Text("Send code")
+            }
         }
     }
 }

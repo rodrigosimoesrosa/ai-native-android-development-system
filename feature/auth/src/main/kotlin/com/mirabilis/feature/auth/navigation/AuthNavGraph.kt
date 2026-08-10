@@ -9,13 +9,6 @@ import com.mirabilis.feature.auth.home.HomeScreen
 import com.mirabilis.feature.auth.sendphone.SendPhoneScreen
 import com.mirabilis.feature.auth.verifyphone.VerifyPhoneScreen
 
-/** Route keys for the auth flow (SendPhone → VerifyPhone → Home). */
-object AuthRoutes {
-    const val SEND_PHONE = "send_phone"
-    const val VERIFY_PHONE = "verify_phone"
-    const val HOME = "home"
-}
-
 /**
  * Sign-in navigation (US1). Screens drive navigation via one-shot effects; the graph maps them to
  * `navController` calls. Top-level auth-state routing (start at Home when a session exists) lands in

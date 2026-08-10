@@ -14,8 +14,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
@@ -64,14 +64,14 @@ class TokenAuthenticatorLogoutTest {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build().create(AuthApi::class.java)
 
-        var threw = false
+        var gaveUpStatus = -1
         try {
             api.me()
         } catch (e: HttpException) {
-            threw = true
+            gaveUpStatus = e.code() // the authenticator returned null → OkHttp surfaces the 401
         }
 
-        assertTrue("gives up with the 401", threw)
+        assertEquals("gives up with the 401", 401, gaveUpStatus)
         assertNull("session cleared on non-renewable refresh", holder.accessToken)
         assertNull(holder.refreshToken)
     }

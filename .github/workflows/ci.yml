@@ -1,15 +1,25 @@
 name: CI
 
-# The "green = done" gate (constitution Principle III + the merge human-gate).
-# Runs the full JVM unit-test suite across all modules on every push/PR.
+# The "green = done" gate (Constitution Principle III + the merge human-gate). Runs the method
+# guardrails (fast, no Gradle), then the full JVM unit-test suite, then static analysis (detekt).
 on:
   push:
     branches: [ main ]
   pull_request:
 
 jobs:
-  test:
+  guardrails:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Knowledge layer + links (docs are tested)
+        run: bash scripts/check-knowledge.sh
+      - name: Neutral-core / adapter boundary (ADR-0001)
+        run: bash scripts/check-adapter-boundary.sh
+
+  build:
+    runs-on: ubuntu-latest
+    needs: guardrails
     steps:
       - uses: actions/checkout@v4
 
@@ -31,5 +41,8 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: Run unit tests (all modules)
+      - name: Unit tests (all modules)
         run: ./gradlew test --stacktrace --console=plain
+
+      - name: Static analysis (detekt)
+        run: ./gradlew detekt --console=plain

@@ -23,7 +23,13 @@ class DomainPurityTest {
         )
         val offenders = srcDir.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
-            .flatMap { file -> file.readLines().filter { forbidden.containsMatchIn(it.trim()) }.map { "${file.name}: $it" } }
+            .flatMap { file ->
+                file.readLines().filter {
+                    forbidden.containsMatchIn(
+                        it.trim()
+                    )
+                }.map { "${file.name}: $it" }
+            }
             .toList()
 
         assertTrue(

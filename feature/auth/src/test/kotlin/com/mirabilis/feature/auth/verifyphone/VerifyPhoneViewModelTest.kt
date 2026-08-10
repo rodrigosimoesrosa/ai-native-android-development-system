@@ -28,6 +28,7 @@ class VerifyPhoneViewModelTest {
     private val dispatcher = UnconfinedTestDispatcher(scheduler)
 
     @Before fun setUp() = Dispatchers.setMain(dispatcher)
+
     @After fun tearDown() = Dispatchers.resetMain()
 
     private fun viewModel(repo: FakeAuthRepository, store: PendingVerificationStore) =

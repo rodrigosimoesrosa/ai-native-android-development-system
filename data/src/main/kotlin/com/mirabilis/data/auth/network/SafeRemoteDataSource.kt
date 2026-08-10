@@ -14,6 +14,9 @@ import java.io.IOException
  */
 abstract class SafeRemoteDataSource(private val ioDispatcher: CoroutineDispatcher) {
 
+    // The broad catch is the intentional error boundary (ADR-0003): every throwable becomes a
+    // typed AppError so none leaks past this layer. AppError.Unknown retains the original cause.
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
     protected suspend fun <T> safeCall(block: suspend () -> T): Result<T> =
         withContext(ioDispatcher) {
             try {
