@@ -67,10 +67,12 @@ class ProfileViewModelTest {
         val state = MutableStateFlow(initial)
         override fun observe(): Flow<UserPreferences> = state
         override suspend fun setTheme(theme: Theme): Result<Unit> {
-            state.value = state.value.copy(theme = theme); return Result.Success(Unit)
+            state.value = state.value.copy(theme = theme)
+            return Result.Success(Unit)
         }
         override suspend fun setNotificationsEnabled(enabled: Boolean): Result<Unit> {
-            state.value = state.value.copy(notificationsEnabled = enabled); return Result.Success(Unit)
+            state.value = state.value.copy(notificationsEnabled = enabled)
+            return Result.Success(Unit)
         }
     }
 

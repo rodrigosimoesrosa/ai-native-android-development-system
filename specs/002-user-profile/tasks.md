@@ -45,10 +45,10 @@
 
 ## Phase 6: Polish
 
-- [ ] T023 [P] Run [quickstart.md](./quickstart.md) scenarios 1–8
-- [ ] T024 [P] Error-message mapping for profile errors (reuse `feature/auth` `ErrorMessages` or a shared helper)
-- [ ] T025 [P] Purity: `:domain/profile` has no framework import (extend `DomainPurityTest` coverage)
-- [ ] T026 Record provenance (spec 002, method, agent/model) per Principle IV
+- [x] T023 [P] Run [quickstart.md](./quickstart.md) scenarios 1–8 (1–7 covered by JVM tests; scenario 8 = FR-005 unauthenticated route guard is deferred to `003`/app nav integration — see PROVENANCE)
+- [x] T024 [P] Error-message mapping for profile errors (reuse `feature/auth` `ErrorMessages` or a shared helper) — `:feature:profile` `ErrorMessages.kt`
+- [x] T025 [P] Purity: `:domain/profile` has no framework import (extend `DomainPurityTest` coverage)
+- [x] T026 Record provenance (spec 002, method, agent/model) per Principle IV — `PROVENANCE.md`
 
 ## Dependencies
 

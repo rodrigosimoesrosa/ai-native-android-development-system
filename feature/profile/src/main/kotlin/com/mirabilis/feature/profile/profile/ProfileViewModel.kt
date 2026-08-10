@@ -97,9 +97,10 @@ class ProfileViewModel @Inject constructor(
             .onEach { result ->
                 when (result) {
                     FlowResult.Loading -> setEvent { ProfileEvent.Loading }
-                    is FlowResult.Success -> result.data
-                        ?.let { user -> setEvent { ProfileEvent.UserLoaded(user) } }
-                        ?: setEvent { ProfileEvent.Failed("Couldn't load your profile.") }
+                    is FlowResult.Success ->
+                        result.data
+                            ?.let { user -> setEvent { ProfileEvent.UserLoaded(user) } }
+                            ?: setEvent { ProfileEvent.Failed("Couldn't load your profile.") }
                     is FlowResult.Error -> setEvent { ProfileEvent.Failed(result.error.toUserMessage()) }
                 }
             }
@@ -120,12 +121,17 @@ class ProfileViewModel @Inject constructor(
     override fun onReduce(oldState: ProfileUiState, event: ProfileEvent): ProfileUiState =
         when (event) {
             ProfileEvent.Loading -> oldState.copy(isLoading = true, error = null)
-            is ProfileEvent.UserLoaded -> oldState.copy(
-                isLoading = false,
-                user = event.user,
-                error = null,
-                nameDraft = if (oldState.nameDraft.isEmpty()) event.user.displayName.orEmpty() else oldState.nameDraft,
-            )
+            is ProfileEvent.UserLoaded ->
+                oldState.copy(
+                    isLoading = false,
+                    user = event.user,
+                    error = null,
+                    nameDraft = if (oldState.nameDraft.isEmpty()) {
+                        event.user.displayName.orEmpty()
+                    } else {
+                        oldState.nameDraft
+                    },
+                )
             is ProfileEvent.Failed -> oldState.copy(isLoading = false, error = event.message)
             is ProfileEvent.DraftChanged -> oldState.copy(nameDraft = event.value, saveError = null)
             ProfileEvent.Saving -> oldState.copy(isSaving = true, saveError = null)
