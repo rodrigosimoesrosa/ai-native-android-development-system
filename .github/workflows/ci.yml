@@ -1,7 +1,8 @@
 name: CI
 
 # The "green = done" gate (Constitution Principle III + the merge human-gate). Runs the method
-# guardrails (fast, no Gradle), then the full JVM unit-test suite, then static analysis (detekt).
+# guardrails (fast, no Gradle), then the full JVM unit-test suite + static analysis (detekt), then the
+# instrumented (connectedAndroidTest) suite on a hardware-accelerated emulator.
 on:
   push:
     branches: [ main ]
@@ -46,3 +47,45 @@ jobs:
 
       - name: Static analysis (detekt)
         run: ./gradlew detekt --console=plain
+
+  instrumented:
+    # The instrumented slice of the gate: nav behavior (spec 003, T007) runs on a real Android runtime.
+    # Free on public repos with standard Linux runners; KVM gives the emulator hardware acceleration.
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        api-level: [ 34 ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Enable KVM (hardware acceleration)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Instrumented tests (:feature:navigation) on API ${{ matrix.api-level }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot
+          script: ./gradlew :feature:navigation:connectedDebugAndroidTest --console=plain

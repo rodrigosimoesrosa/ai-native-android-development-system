@@ -89,6 +89,15 @@ graph TD
 - [ADR-0009 — Run modes: human-paced / ai-paced](decisions/ADR-0009-run-modes-human-paced-and-ai-paced.md)
 - [ADR-0010 — Automated provenance (commit trailers) + metrics](decisions/ADR-0010-automated-provenance-and-metrics.md)
 
+## Specs
+
+One folder per feature (`specs/<NNN-name>/`): spec, plan, research, data-model, contracts, tasks.
+Transient work units that travel the loop; the durable decisions they inherit live in the ADRs above.
+
+- [001 — OTP Auth](specs/001-otp-auth/spec.md)
+- [002 — User Profile](specs/002-user-profile/spec.md)
+- [003 — App Navigation Shell](specs/003-navigation/spec.md)
+
 ## Method layer (neutral core vs. adapters)
 
 The portability guarantee of ADR-0001, made concrete (ADR-0008):
