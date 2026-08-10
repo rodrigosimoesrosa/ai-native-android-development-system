@@ -33,6 +33,9 @@ data class RefreshResponseRemote(
 )
 
 @Serializable
+data class UpdateProfileRequest(val displayName: String)
+
+@Serializable
 data class MeResponseRemote(val user: UserRemote)
 
 @Serializable

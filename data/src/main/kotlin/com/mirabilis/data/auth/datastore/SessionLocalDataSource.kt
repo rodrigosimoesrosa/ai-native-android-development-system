@@ -21,6 +21,9 @@ interface ISessionLocalDataSource {
     fun user(): Flow<User?>
     suspend fun save(session: AuthSession, user: User): Result<Unit>
     suspend fun updateTokens(session: AuthSession): Result<Unit>
+
+    /** Persist an updated user (e.g. after a profile edit) without touching the session tokens. */
+    suspend fun updateUser(user: User): Result<Unit>
     suspend fun clear(): Result<Unit>
 
     /** Load the persisted tokens into the in-memory cache at startup (ADR-0006 §4). */
@@ -47,6 +50,10 @@ class SessionLocalDataSource @Inject constructor(
     override suspend fun updateTokens(session: AuthSession): Result<Unit> = safeCall {
         sessionStore.updateData { session.toProto() }
         sessionHolder.update(session.accessToken, session.refreshToken)
+    }
+
+    override suspend fun updateUser(user: User): Result<Unit> = safeCall {
+        userStore.updateData { user.toProto() }
     }
 
     override suspend fun clear(): Result<Unit> = safeCall {
