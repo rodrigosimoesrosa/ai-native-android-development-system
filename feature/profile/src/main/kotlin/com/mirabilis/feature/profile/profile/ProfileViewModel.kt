@@ -2,6 +2,7 @@ package com.mirabilis.feature.profile.profile
 
 import androidx.lifecycle.viewModelScope
 import com.mirabilis.core.result.FlowResult
+import com.mirabilis.core.result.Result
 import com.mirabilis.core.result.asResult
 import com.mirabilis.core.ui.mvi.MVIViewModel
 import com.mirabilis.core.ui.mvi.UiEffect
@@ -10,36 +11,49 @@ import com.mirabilis.core.ui.mvi.UiIntent
 import com.mirabilis.core.ui.mvi.UiState
 import com.mirabilis.domain.auth.model.User
 import com.mirabilis.domain.auth.usecase.ObserveUserUseCase
+import com.mirabilis.domain.profile.usecase.UpdateDisplayNameUseCase
 import com.mirabilis.feature.profile.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ProfileUiState(
     val isLoading: Boolean = true,
     val user: User? = null,
     val error: String? = null,
+    // US2 — display-name edit
+    val nameDraft: String = "",
+    val isSaving: Boolean = false,
+    val saveError: String? = null,
 ) : UiState
 
 sealed interface ProfileIntent : UiIntent {
     data object Retry : ProfileIntent
+    data class NameChanged(val value: String) : ProfileIntent
+    data object Save : ProfileIntent
 }
 
 sealed interface ProfileEvent : UiEvent {
     data object Loading : ProfileEvent
     data class UserLoaded(val user: User) : ProfileEvent
     data class Failed(val message: String) : ProfileEvent
+    data class DraftChanged(val value: String) : ProfileEvent
+    data object Saving : ProfileEvent
+    data object Saved : ProfileEvent
+    data class SaveFailed(val message: String) : ProfileEvent
 }
 
 /** Profile has no one-shot effects; the route guard is handled at the navigation layer (FR-005). */
 sealed interface ProfileEffect : UiEffect
 
-/** US1: view the authenticated user (display name + phone) with error + retry (FR-001/006). */
+/** US1: view the user (FR-001/006). US2: edit the display name (FR-002/003/006). */
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val observeUser: ObserveUserUseCase,
+    private val updateDisplayName: UpdateDisplayNameUseCase,
 ) : MVIViewModel<ProfileUiState, ProfileEvent, ProfileEffect, ProfileIntent>() {
 
     private var userJob: Job? = null
@@ -53,6 +67,8 @@ class ProfileViewModel @Inject constructor(
     override fun onIntent(intent: ProfileIntent) {
         when (intent) {
             ProfileIntent.Retry -> loadUser()
+            is ProfileIntent.NameChanged -> setEvent { ProfileEvent.DraftChanged(intent.value) }
+            ProfileIntent.Save -> save()
         }
     }
 
@@ -72,10 +88,30 @@ class ProfileViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun save() {
+        val name = state.value.nameDraft
+        setEvent { ProfileEvent.Saving }
+        viewModelScope.launch {
+            when (val result = updateDisplayName(name)) {
+                is Result.Success -> setEvent { ProfileEvent.Saved }
+                is Result.Error -> setEvent { ProfileEvent.SaveFailed(result.error.toUserMessage()) }
+            }
+        }
+    }
+
     override fun onReduce(oldState: ProfileUiState, event: ProfileEvent): ProfileUiState =
         when (event) {
             ProfileEvent.Loading -> oldState.copy(isLoading = true, error = null)
-            is ProfileEvent.UserLoaded -> oldState.copy(isLoading = false, user = event.user, error = null)
+            is ProfileEvent.UserLoaded -> oldState.copy(
+                isLoading = false,
+                user = event.user,
+                error = null,
+                nameDraft = if (oldState.nameDraft.isEmpty()) event.user.displayName.orEmpty() else oldState.nameDraft,
+            )
             is ProfileEvent.Failed -> oldState.copy(isLoading = false, error = event.message)
+            is ProfileEvent.DraftChanged -> oldState.copy(nameDraft = event.value, saveError = null)
+            ProfileEvent.Saving -> oldState.copy(isSaving = true, saveError = null)
+            ProfileEvent.Saved -> oldState.copy(isSaving = false, saveError = null)
+            is ProfileEvent.SaveFailed -> oldState.copy(isSaving = false, saveError = event.message)
         }
 }

@@ -1,15 +1,19 @@
 package com.mirabilis.feature.profile.profile
 
 import app.cash.turbine.test
+import com.mirabilis.core.result.AppError
 import com.mirabilis.core.result.Result
 import com.mirabilis.domain.auth.model.User
 import com.mirabilis.domain.auth.repository.ISessionRepository
 import com.mirabilis.domain.auth.usecase.ObserveUserUseCase
+import com.mirabilis.domain.profile.repository.IProfileRepository
+import com.mirabilis.domain.profile.usecase.UpdateDisplayNameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -39,8 +43,24 @@ class ProfileViewModelTest {
         override suspend fun clearSession(): Result<Unit> = Result.Success(Unit)
     }
 
-    private fun viewModel(session: ISessionRepository) =
-        ProfileViewModel(ObserveUserUseCase(session))
+    /** Edit path double: on success writes back into the session flow so `observeUser` re-emits. */
+    private class FakeProfile(
+        private val session: FakeSession,
+        private val fail: AppError? = null,
+    ) : IProfileRepository {
+        override suspend fun updateDisplayName(displayName: String): Result<User> {
+            fail?.let { return Result.Error(it) }
+            val updated = (session.userFlow.value ?: User("u_1", "+15551234567", null))
+                .copy(displayName = displayName)
+            session.userFlow.value = updated
+            return Result.Success(updated)
+        }
+    }
+
+    private fun viewModel(
+        session: FakeSession,
+        profile: IProfileRepository = FakeProfile(session),
+    ) = ProfileViewModel(ObserveUserUseCase(session), UpdateDisplayNameUseCase(profile))
 
     @Test
     fun `loads the authenticated user`() = runTest(dispatcher) {
@@ -68,5 +88,40 @@ class ProfileViewModelTest {
             assertEquals("Couldn't load your profile.", failed.error)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `editing a valid name persists and is reflected on the user`() = runTest(dispatcher) {
+        val session = FakeSession(user)
+        val vm = viewModel(session)
+        advanceUntilIdle()
+        assertEquals("Ada Lovelace", vm.state.value.nameDraft)
+
+        vm.setIntent { ProfileIntent.NameChanged("Ada L.") }
+        advanceUntilIdle()
+        vm.setIntent { ProfileIntent.Save }
+        advanceUntilIdle()
+
+        val s = vm.state.value
+        assertFalse(s.isSaving)
+        assertNull(s.saveError)
+        assertEquals("Ada L.", s.user?.displayName)
+    }
+
+    @Test
+    fun `a save failure shows a recoverable error and does not change the user`() = runTest(dispatcher) {
+        val session = FakeSession(user)
+        val vm = viewModel(session, FakeProfile(session, AppError.Server(400, null)))
+        advanceUntilIdle()
+
+        vm.setIntent { ProfileIntent.NameChanged("X") }
+        advanceUntilIdle()
+        vm.setIntent { ProfileIntent.Save }
+        advanceUntilIdle()
+
+        val s = vm.state.value
+        assertFalse(s.isSaving)
+        assertEquals("That name isn't valid. Please try another.", s.saveError)
+        assertEquals("Ada Lovelace", s.user?.displayName)
     }
 }

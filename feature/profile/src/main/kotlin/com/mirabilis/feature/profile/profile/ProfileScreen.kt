@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,6 +43,25 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Text(text = user.phone)
+
+                // US2 — edit the display name (FR-002/006).
+                OutlinedTextField(
+                    value = state.nameDraft,
+                    onValueChange = { value -> viewModel.setIntent { ProfileIntent.NameChanged(value) } },
+                    label = { Text("Display name") },
+                    singleLine = true,
+                    isError = state.saveError != null,
+                    enabled = !state.isSaving,
+                )
+                state.saveError?.let { message ->
+                    Text(text = message, color = MaterialTheme.colorScheme.error)
+                }
+                Button(
+                    onClick = { viewModel.setIntent { ProfileIntent.Save } },
+                    enabled = !state.isSaving,
+                ) {
+                    Text(if (state.isSaving) "Saving…" else "Save")
+                }
             }
 
             else -> {

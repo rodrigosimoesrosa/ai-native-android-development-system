@@ -30,11 +30,11 @@
 
 ## Phase 4: US2 — Edit my display name (P2)
 
-- [ ] T014 [P] [US2] Unit test `UpdateDisplayNameUseCase` (reject blank) in `domain/src/test/...`
-- [ ] T015 [P] [US2] MockWebServer test `PATCH /me` (200 → updated user; 400 → typed error) in `data/src/test/...`
-- [ ] T016 [US2] `UpdateDisplayNameUseCase` (validate non-blank → repo) in `domain/.../profile/usecase/`
-- [ ] T017 [US2] Edit intent in `ProfileViewModel` (saving/saved/error states) — depends T011, T016, T008
-- [ ] T018 [US2] Edit UI in `ProfileScreen` (name field + Save + inline error — FR-002/006)
+- [x] T014 [P] [US2] Unit test `UpdateDisplayNameUseCase` (reject blank) in `domain/src/test/...`
+- [x] T015 [P] [US2] MockWebServer test `PATCH /me` (200 → updated user; 400 → typed error) in `data/src/test/...`
+- [x] T016 [US2] `UpdateDisplayNameUseCase` (validate non-blank → repo) in `domain/.../profile/usecase/`
+- [x] T017 [US2] Edit intent in `ProfileViewModel` (saving/saved/error states) — depends T011, T016, T008
+- [x] T018 [US2] Edit UI in `ProfileScreen` (name field + Save + inline error — FR-002/006)
 
 ## Phase 5: US3 — Set my preferences (P3)
 
