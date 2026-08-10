@@ -36,6 +36,7 @@ junit = "4.13.2"
 coroutinesTest = "1.9.0"
 turbine = "1.2.0"
 mockk = "1.13.13"
+androidxTestExtJunit = "1.2.1"       # androidx instrumentation runner support (matches app's AndroidJUnitRunner)
 # Static analysis / lint (detekt bundles the ktlint formatting ruleset)
 detekt = "1.23.7"
 
@@ -80,6 +81,10 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+# Instrumented (Compose UI/nav) test — Compose artifacts versioned by the pinned Compose BOM (plan.md: nav behavior is instrumented)
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
