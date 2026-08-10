@@ -30,6 +30,11 @@ android {
 
 kotlin {
     jvmToolchain(17)
+    // Adopt the future-correct annotation target for DI qualifiers on constructor `val` params
+    // (@Dispatcher/@RefreshClient) — silences KT-73255 and keeps the build warning-clean.
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
 }
 
 protobuf {

@@ -6,6 +6,8 @@ import com.mirabilis.data.auth.network.AuthApi
 import com.mirabilis.data.auth.network.FakeAuthApi
 import com.mirabilis.data.auth.network.AuthRemoteDataSource
 import com.mirabilis.data.auth.network.IAuthRemoteDataSource
+import com.mirabilis.data.auth.network.RetrofitTokenRefresher
+import com.mirabilis.data.auth.network.TokenRefresher
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -32,4 +34,8 @@ abstract class DataSourcesModule {
     @Binds
     @Singleton
     abstract fun bindSessionLocalDataSource(impl: SessionLocalDataSource): ISessionLocalDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindTokenRefresher(impl: RetrofitTokenRefresher): TokenRefresher
 }
