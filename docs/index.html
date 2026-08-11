@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI-Native Development Architecture — a case study</title>
+<meta name="description" content="A repeatable, git-native development architecture where humans set intent and hold the gates, and a swappable AI brain runs the implement/verify loop — proven on a real Android codebase." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='.9em'%20font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
+<style>
+  /* ---------- tokens: light is the base :root ---------- */
+  :root {
+    --ground: #f5f6f8;
+    --surface: #ffffff;
+    --surface-2: #eef1f4;
+    --ink: #12171e;
+    --muted: #5b6472;
+    --faint: #8b93a1;
+    --line: #dde2e8;
+    --line-strong: #c3cad3;
+    --human: #a85e12;      /* human-paced */
+    --human-soft: #f4e6d3;
+    --machine: #0b8f8a;    /* ai-paced */
+    --machine-soft: #d5efed;
+    --gate: #c0392b;       /* human gates */
+    --gate-soft: #f6ddd9;
+    --shadow: 0 1px 2px rgba(18,23,30,.06), 0 8px 24px rgba(18,23,30,.06);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1319;
+      --surface: #151c24;
+      --surface-2: #1b232d;
+      --ink: #e6ebf1;
+      --muted: #97a1af;
+      --faint: #6c7684;
+      --line: #263039;
+      --line-strong: #35414d;
+      --human: #e0a44e;
+      --human-soft: #33281a;
+      --machine: #2fd2c4;
+      --machine-soft: #102e2c;
+      --gate: #f0736f;
+      --gate-soft: #351c1c;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0e1319;
+    --surface: #151c24;
+    --surface-2: #1b232d;
+    --ink: #e6ebf1;
+    --muted: #97a1af;
+    --faint: #6c7684;
+    --line: #263039;
+    --line-strong: #35414d;
+    --human: #e0a44e;
+    --human-soft: #33281a;
+    --machine: #2fd2c4;
+    --machine-soft: #102e2c;
+    --gate: #f0736f;
+    --gate-soft: #351c1c;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+  .col { max-width: 660px; }
+
+  a { color: var(--machine); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--machine); outline-offset: 3px; border-radius: 4px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 14px;
+  }
+  h1, h2, h3 { font-family: var(--mono); font-weight: 600; text-wrap: balance; letter-spacing: -.01em; }
+  h1 { font-size: clamp(2.1rem, 5.5vw, 3.3rem); line-height: 1.06; margin: 0 0 20px; }
+  h2 { font-size: clamp(1.35rem, 3vw, 1.7rem); line-height: 1.15; margin: 0 0 8px; }
+  h3 { font-size: 1.02rem; margin: 0 0 6px; }
+  p { margin: 0 0 18px; }
+  .lead { font-size: 1.2rem; line-height: 1.55; color: var(--ink); }
+  .muted { color: var(--muted); }
+  strong { font-weight: 650; }
+  code, .m { font-family: var(--mono); font-size: .9em; }
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: .08em .4em;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line);
+  }
+  .brandmark { font-family: var(--mono); font-size: .8rem; letter-spacing: .04em; color: var(--muted); }
+  .brandmark b { color: var(--ink); }
+  .toggle {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .04em;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    padding: 7px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .toggle:hover { border-color: var(--machine); color: var(--machine); }
+
+  /* ---------- hero ---------- */
+  header.hero { padding: 68px 0 40px; }
+  .hero .tag {
+    display: inline-flex; gap: 8px; align-items: center;
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--machine); border: 1px solid var(--machine); border-radius: 999px;
+    padding: 5px 12px; margin-bottom: 22px;
+  }
+  .hero .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--machine); }
+  .hero p.lead { max-width: 640px; }
+  .metaline {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px;
+  }
+  .chip {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .02em;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+    padding: 6px 11px; border-radius: 7px;
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+
+  section { padding: 46px 0; border-top: 1px solid var(--line); }
+  .sec-head { margin-bottom: 30px; }
+
+  /* ---------- the loop diagram ---------- */
+  .loop {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+  }
+  @media (max-width: 720px) { .loop { grid-template-columns: repeat(2, 1fr); } }
+  .stage {
+    position: relative; background: var(--surface); border: 1px solid var(--line);
+    border-top: 3px solid var(--stage, var(--line-strong));
+    border-radius: 10px; padding: 14px 13px 15px; box-shadow: var(--shadow);
+  }
+  .stage .k {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--stage, var(--muted)); display: block; margin-bottom: 6px;
+  }
+  .stage .t { font-family: var(--mono); font-weight: 600; font-size: .96rem; }
+  .stage small { display: block; color: var(--muted); font-size: .8rem; margin-top: 4px; line-height: 1.4; }
+  .stage.human { --stage: var(--human); }
+  .stage.machine { --stage: var(--machine); }
+
+  .lanes { display: flex; gap: 18px; flex-wrap: wrap; margin: 22px 0 4px; }
+  .lane { display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; }
+  .swatch.h { background: var(--human); }
+  .swatch.m { background: var(--machine); }
+  .swatch.g { background: var(--gate); }
+
+  .flowfeed {
+    margin-top: 14px; font-family: var(--mono); font-size: .8rem; color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .flowfeed .arc { flex: 1; height: 1px; background: linear-gradient(90deg, var(--machine), var(--human)); opacity: .5; }
+
+  /* ---------- gate callout ---------- */
+  .gate {
+    margin-top: 26px; background: var(--gate-soft); border: 1px solid var(--gate);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .gate .k { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gate); }
+  .gate p { margin: 6px 0 0; color: var(--ink); }
+  .gate .list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .gate .list span { font-family: var(--mono); font-size: .76rem; background: var(--surface); border: 1px solid var(--gate); color: var(--gate); padding: 4px 10px; border-radius: 6px; }
+
+  /* ---------- two-column cards ---------- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 20px 22px; box-shadow: var(--shadow); }
+  .card .k { font-family: var(--mono); font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
+  .card ul { margin: 10px 0 0; padding-left: 18px; }
+  .card li { margin: 6px 0; color: var(--muted); }
+  .card li b { color: var(--ink); font-weight: 600; }
+
+  .brainrow { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+  .brain-core { flex: 1 1 100%; text-align: center; background: var(--surface-2); border: 1px dashed var(--line-strong); border-radius: 10px; padding: 12px; font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+  .brain-core b { color: var(--ink); }
+  .adapter { flex: 1 1 220px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--machine); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .adapter.alt { border-left-color: var(--human); }
+  .adapter .t { font-family: var(--mono); font-weight: 600; }
+  .adapter small { display: block; color: var(--muted); font-size: .82rem; margin-top: 4px; }
+
+  /* ---------- proof ---------- */
+  .proof { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 26px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .proof::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--machine); }
+  .proof .k { font-family: var(--mono); font-size: .72rem; letter-spacing: .13em; text-transform: uppercase; color: var(--machine); }
+  .proof h3 { font-size: 1.2rem; margin: 8px 0 12px; }
+  .proof .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+  @media (max-width: 680px) { .proof .steps { grid-template-columns: repeat(2, 1fr); } }
+  .proof .steps div { font-family: var(--mono); font-size: .78rem; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .proof .steps div b { display: block; color: var(--ink); font-size: .82rem; margin-bottom: 2px; }
+
+  /* ---------- metrics ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 16px; box-shadow: var(--shadow); }
+  .stat .n { font-family: var(--mono); font-weight: 600; font-size: 2rem; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat .n.m { color: var(--machine); }
+  .stat .l { font-family: var(--mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 9px; }
+  .stat small { display: block; color: var(--faint); font-size: .78rem; margin-top: 4px; }
+
+  /* ---------- table ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: .92rem; }
+  th, td { text-align: left; padding: 12px 15px; border-bottom: 1px solid var(--line); }
+  th { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+  td:first-child { font-family: var(--mono); color: var(--ink); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td .adr { font-family: var(--mono); font-size: .78rem; color: var(--machine); }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 44px 0 60px; }
+  .cta { display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono); font-weight: 600; font-size: .92rem;
+    background: var(--ink); color: var(--ground); border-radius: 9px; padding: 12px 20px; text-decoration: none; }
+  .cta:hover { opacity: .9; }
+  .footmeta { font-family: var(--mono); font-size: .78rem; color: var(--faint); margin-top: 22px; }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brandmark"><b>ai-native</b> / android · case study</span>
+    <button class="toggle" id="themeToggle" aria-label="Toggle color theme">◐ theme</button>
+  </div>
+
+  <header class="hero">
+    <span class="tag"><span class="dot"></span> a development architecture, not a tool</span>
+    <h1>Specs are the source of truth. Humans hold the gates. The AI runs the loop.</h1>
+    <p class="lead muted">
+      The differentiator in software is shifting from <em>who writes the code</em> to
+      <strong>who maintains a legible, verifiable system of intent</strong> that both people and
+      models can act on safely. This is one concrete, opinionated answer — proven on a real,
+      multi-module Android codebase.
+    </p>
+    <div class="metaline">
+      <span class="chip"><b>4</b> specs shipped &amp; verified</span>
+      <span class="chip"><b>Clean Arch + MVI</b> · Hilt · Room/DataStore</span>
+      <span class="chip">brain: <b>Claude Code</b> ⇄ <b>opencode</b> (local LLM)</span>
+      <span class="chip">MIT</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The one repeatable loop</p>
+      <h2>Every unit of work travels the same path</h2>
+      <p class="muted">Behavior is captured as a spec, designed against decisions already recorded,
+        broken into an executable checklist, built, verified by tests, and closed by recording what
+        happened. The color says <em>who drives</em>.</p>
+    </div>
+
+    <div class="loop">
+      <div class="stage human"><span class="k">human</span><span class="t">specify</span><small>machine-readable intent + acceptance criteria</small></div>
+      <div class="stage human"><span class="k">human</span><span class="t">plan</span><small>architecture inherited from the ADRs</small></div>
+      <div class="stage human"><span class="k">human</span><span class="t">tasks</span><small>dependency-ordered, approved checklist</small></div>
+      <div class="stage machine"><span class="k">agent</span><span class="t">implement</span><small>one task at a time, test-first</small></div>
+      <div class="stage machine"><span class="k">agent</span><span class="t">verify</span><small>tests &amp; static analysis — green = done</small></div>
+      <div class="stage human"><span class="k">human</span><span class="t">record</span><small>provenance trailers + metrics, in git</small></div>
+    </div>
+
+    <div class="lanes">
+      <span class="lane"><span class="swatch h"></span> human-paced — a person drives</span>
+      <span class="lane"><span class="swatch m"></span> ai-paced — an agent drives, autonomously</span>
+      <span class="lane"><span class="swatch g"></span> human gate</span>
+    </div>
+    <div class="flowfeed"><span>record</span><span class="arc"></span><span>feeds the next unit → specify</span></div>
+
+    <div class="gate">
+      <span class="k">◆ four gates never cross autonomously</span>
+      <p>Autonomy is bounded. An agent works an <strong>already-approved</strong> task list to green —
+        and stops at every checkpoint that needs human judgment.</p>
+      <div class="list"><span>merge</span><span>architecture change</span><span>dependency add</span><span>release</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Why it survives a tool swap</p>
+      <h2>Neutral core, pluggable brain</h2>
+      <p class="muted">The project's intelligence lives in tool-agnostic files in git. The AI tooling
+        is a thin, replaceable adapter on top. Swapping the model means rewriting an adapter — never
+        the project.</p>
+    </div>
+    <div class="brainrow">
+      <div class="brain-core">the loop runs on a tool-neutral harness · <b>scripts/ai-paced-run.sh</b></div>
+      <div class="adapter"><span class="t">adapters/claude-code</span><small>Claude drives the human-paced authoring and, when asked, the ai-paced loop.</small></div>
+      <div class="adapter alt"><span class="t">adapters/opencode</span><small>A <strong>local</strong> LLM (Ollama / LM Studio) as the autonomous brain — same harness, same gates.</small></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The claim, demonstrated</p>
+      <h2>A local LLM shipped a whole feature — end to end</h2>
+    </div>
+    <div class="proof">
+      <span class="k">spec 004 · confirm sign-out</span>
+      <h3>12 of 12 tasks, driven autonomously by <span class="m m">opencode + a local qwen&#8209;35B</span></h3>
+      <p class="muted">A human authored and approved the spec, plan, and task list. The local model then
+        worked the list to green through the neutral harness — and the run <em>hardened the system</em>,
+        surfacing two real infrastructure gaps that were fixed. The one code defect it introduced
+        (cross-module visibility) was caught by CI, the honest gate.</p>
+      <div class="steps">
+        <div><b>human-paced</b> specify · plan · tasks (Claude)</div>
+        <div><b>handoff</b> approved tasks.md</div>
+        <div><b>ai-paced</b> implement · verify (local LLM)</div>
+        <div><b>verified</b> CI green incl. emulator</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Measured, not asserted</p>
+      <h2>The process reports on itself</h2>
+      <p class="muted">Every commit carries provenance trailers — which spec, method, agent, and model
+        produced it — in git metadata, never in app code. A CI job turns that ledger into numbers.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n m">22%</div><div class="l">ai-paced share</div><small>of stamped commits</small></div>
+      <div class="stat"><div class="n">4</div><div class="l">CI gates</div><small>guardrails · build · instrumented · metrics</small></div>
+      <div class="stat"><div class="n">2</div><div class="l">brains proven</div><small>Claude Code · local LLM</small></div>
+      <div class="stat"><div class="n">0</div><div class="l">gates self-approved</div><small>merge stays human</small></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The proving ground</p>
+      <h2>Deliberately conventional Android</h2>
+      <p class="muted">The app is boring on purpose — mainstream patterns, so the method has nowhere to
+        hide. Each pattern's decision is recorded as an ADR.</p>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Where it lives</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td>Clean Architecture + MVI</td><td>domain / data / feature modules</td><td><span class="adr">ADR-0003</span></td></tr>
+          <tr><td>Dependency Injection · Hilt</td><td>composition root in <code>:app</code></td><td><span class="adr">ADR-0004</span></td></tr>
+          <tr><td>Persistence · Room + Proto DataStore</td><td><code>:data</code></td><td><span class="adr">ADR-0005</span></td></tr>
+          <tr><td>Networking + JWT refresh</td><td><code>:data</code> · Retrofit</td><td><span class="adr">ADR-0006</span></td></tr>
+          <tr><td>Quality gate · detekt</td><td>every module · CI</td><td><span class="adr">ADR-0007</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="col">
+      <p class="eyebrow">Read the method, run the loop</p>
+      <h2 style="margin-bottom:18px">The whole system is versioned, reviewable, and reproducible by <code>git clone</code>.</h2>
+      <a class="cta" href="https://github.com/rodrigosimoesrosa/ai-native-android-development-system" target="_blank" rel="noopener">↗ github.com/rodrigosimoesrosa/ai-native-android-development-system</a>
+      <p class="footmeta">MIT © 2026 Rodrigo Simões Rosa · specs, decisions (ADRs), methods, and metrics all live in git.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', function () {
+      var explicit = root.getAttribute('data-theme');
+      var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var current = explicit || (systemDark ? 'dark' : 'light');
+      root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    });
+
+    if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('section, .proof').forEach(function (el) { el.classList.add('reveal'); io.observe(el); });
+    }
+  })();
+</script>
+</body>
+</html>
