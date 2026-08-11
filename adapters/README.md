@@ -16,8 +16,9 @@ whole portability guarantee, made concrete.
 | Adapter | Status | Realizes |
 |---|---|---|
 | [`claude-code/`](claude-code/) | **active** | all methods, via Spec Kit skills, hooks, and CI scripts |
-| [`opencode/`](opencode/) | **planned** (swap target) | documents what an equivalent adapter provides |
+| [`opencode/`](opencode/) | **active** (local-LLM brain) | ai-paced brain via a fully local model — drove spec `004` end-to-end |
 
-The second (planned) adapter is not decoration: its presence is the falsifiable claim that
-tool-neutrality is real and not asserted. A CI guardrail keeps `methods/` free of any tool token, so
-the boundary cannot silently rot.
+The second adapter is not decoration: it is the falsifiable claim that tool-neutrality is real and not
+asserted — and it is **proven by execution**, not a promise. The same harness, gate, escalation, and
+provenance ran spec `004` with a different, local brain. A CI guardrail keeps `methods/` free of any
+tool token, so the boundary cannot silently rot.
