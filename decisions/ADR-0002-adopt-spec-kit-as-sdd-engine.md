@@ -83,3 +83,11 @@ Installed structure (executed 2026-08-07):
 - [ ] First real spec via `/speckit-specify` to exercise the loop end-to-end (v1 exit criterion).
 - [ ] CI guardrail (ADR-0001, open item #7) enforcing the neutral-core / adapter boundary.
 - [ ] Re-evaluate when Spec Kit reaches 1.0 (possible amendment to this ADR).
+
+## Update — 2026-08-11
+
+Beyond "opencode confirmed available as a swap target": opencode has been **adopted as a second
+adapter** and executed spec `004` end-to-end as the ai-paced brain (a local Ollama / LM Studio model),
+with the neutral core unchanged. Tool portability is now **demonstrated**, not merely available. Full
+human-paced SDD-loop commands via opencode remain a v3 item (see
+[ADR-0008](ADR-0008-methods-and-adapters-layout.md)).

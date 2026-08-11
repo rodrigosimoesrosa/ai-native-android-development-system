@@ -57,7 +57,7 @@ tool-neutral, it asserts **`methods/` contains no tool token** (`claude`, `openc
 ### Negative / costs
 - A capability now has two artifacts (neutral method + per-adapter mapping) — mild duplication, the
   price of portability.
-- `adapters/opencode/` is a documented stub, not a working second adapter yet (full swap is v3).
+- `adapters/opencode/` is a working **ai-paced brain** (a local LLM shipped spec `004` end-to-end); the full human-paced SDD-loop commands remain v3 (see Resulting actions).
 
 ### Neutral
 - The existing `.claude/` and `.specify/` directories stay where the tools expect them; `adapters/`
@@ -75,7 +75,7 @@ tool-neutral, it asserts **`methods/` contains no tool token** (`claude`, `openc
 ## Resulting actions
 
 - [x] Create `methods/` (README + initial neutral method docs).
-- [x] Create `adapters/claude-code/` (active) and `adapters/opencode/` (planned swap-target).
+- [x] Create `adapters/claude-code/` (active) and `adapters/opencode/` (active — ai-paced brain via a local LLM).
 - [x] Extend `scripts/check-adapter-boundary.sh` to enforce `methods/` neutrality.
 - [x] Un-grey the `methods/`/`adapters/` nodes in `index.md`.
 - [ ] Extract a neutral method for every skill over time (currently: the SDD-loop core + verify-change + write-adr).

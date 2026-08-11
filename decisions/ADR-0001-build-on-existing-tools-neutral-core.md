@@ -101,3 +101,12 @@ holds only packaging/invocation — zero domain logic.
 - [ ] ADR-0002: spec format — confirm adoption of Spec Kit and how it fits into `specs/`.
 - [ ] A future ADR: knowledge-graph representation (files in git — already decided in the vision, formalize).
 - [ ] Update `00-vision-and-architecture.md` to make the adapter layer explicit. ✅
+
+## Update — 2026-08-11
+
+Alternative 3 ("create the second adapter only when a real need appears") has been realized:
+**`adapters/opencode/` is now an active ai-paced brain** running a local LLM (Ollama / LM Studio). It
+drove spec `004` (confirm sign-out) end-to-end through the tool-neutral harness — the specs,
+knowledge, architecture, and tests untouched. The portability thesis of this ADR is now **proven by
+execution, not asserted**. Full human-paced SDD-loop commands via opencode remain a v3 item (see
+[ADR-0008](ADR-0008-methods-and-adapters-layout.md)).
