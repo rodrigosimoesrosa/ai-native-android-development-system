@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +46,7 @@ fun HomeScreen(
                 Text(text = "Welcome", style = MaterialTheme.typography.headlineMedium)
                 Text(text = user.displayName ?: user.phone, style = MaterialTheme.typography.titleLarge)
                 Text(text = user.phone)
-                TextButton(onClick = { viewModel.setIntent { HomeIntent.SignOut } }) {
+                TextButton(onClick = { viewModel.setIntent { HomeIntent.SignOutRequested } }) {
                     Text("Sign out")
                 }
             }
@@ -57,6 +58,31 @@ fun HomeScreen(
                 )
                 Button(onClick = { viewModel.setIntent { HomeIntent.Retry } }) { Text("Retry") }
             }
+        }
+
+        if (state.showSignOutConfirm) {
+            AlertDialog(
+                onDismissRequest = { viewModel.setIntent { HomeIntent.SignOutCancelled } },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.setIntent { HomeIntent.SignOutConfirmed } }) {
+                        Text("Sign out")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.setIntent { HomeIntent.SignOutCancelled } }) {
+                        Text("Cancel")
+                    }
+                },
+                title = { Text("Sign out") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(state.user?.displayName ?: "You will need to sign in again.")
+                        state.signOutError?.let {
+                            Text(it, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            )
         }
     }
 }

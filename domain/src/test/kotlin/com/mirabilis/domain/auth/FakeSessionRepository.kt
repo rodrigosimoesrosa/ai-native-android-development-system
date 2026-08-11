@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 /** Test double for session state; `signOut`/`clearSession` flip the observable auth-state to false. */
 class FakeSessionRepository(
     initialAuthenticated: Boolean = true,
+    private val signOutResult: Result<Unit> = Result.Success(Unit),
 ) : ISessionRepository {
 
     val authState = MutableStateFlow(initialAuthenticated)
@@ -22,7 +23,7 @@ class FakeSessionRepository(
     override suspend fun signOut(): Result<Unit> {
         signOutCallCount++
         authState.value = false
-        return Result.Success(Unit)
+        return signOutResult
     }
 
     override suspend fun clearSession(): Result<Unit> {

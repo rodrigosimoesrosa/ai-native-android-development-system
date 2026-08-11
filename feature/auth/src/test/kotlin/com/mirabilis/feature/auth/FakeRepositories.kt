@@ -37,6 +37,7 @@ class FakeAuthRepository(
 
 class FakeSessionRepository(
     initialAuthenticated: Boolean = true,
+    private val signOutResult: Result<Unit> = Result.Success(Unit),
 ) : ISessionRepository {
 
     val authState = MutableStateFlow(initialAuthenticated)
@@ -47,8 +48,11 @@ class FakeSessionRepository(
 
     override suspend fun signOut(): Result<Unit> {
         signOutCallCount++
-        authState.value = false
-        return Result.Success(Unit)
+        when (signOutResult) {
+            is Result.Success -> authState.value = false
+            is Result.Error -> Unit // keep auth state — user is still signed in
+        }
+        return signOutResult
     }
 
     override suspend fun clearSession(): Result<Unit> {

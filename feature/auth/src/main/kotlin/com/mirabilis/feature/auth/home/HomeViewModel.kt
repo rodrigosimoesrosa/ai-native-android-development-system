@@ -22,17 +22,24 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val user: User? = null,
     val error: String? = null,
+    val showSignOutConfirm: Boolean = false,
+    val signOutError: String? = null,
 ) : UiState
 
 sealed interface HomeIntent : UiIntent {
     data object Retry : HomeIntent
-    data object SignOut : HomeIntent
+    data object SignOutRequested : HomeIntent
+    data object SignOutConfirmed : HomeIntent
+    data object SignOutCancelled : HomeIntent
 }
 
 sealed interface HomeEvent : UiEvent {
     data object Loading : HomeEvent
     data class Loaded(val user: User) : HomeEvent
     data class Failed(val message: String) : HomeEvent
+    data object SignOutDialogShown : HomeEvent
+    data class SignOutFailed(val message: String) : HomeEvent
+    data object SignOutCancelled : HomeEvent
 }
 
 sealed interface HomeEffect : UiEffect {
@@ -62,7 +69,19 @@ class HomeViewModel @Inject constructor(
     override fun onIntent(intent: HomeIntent) {
         when (intent) {
             HomeIntent.Retry -> load()
-            HomeIntent.SignOut -> viewModelScope.launch { signOutUseCase() }
+            HomeIntent.SignOutRequested -> setEvent { HomeEvent.SignOutDialogShown }
+            HomeIntent.SignOutConfirmed -> viewModelScope.launch {
+                when (val result = signOutUseCase()) {
+                    is Result.Success -> {
+                        // Auth-state observer emits false → NavigateToSendPhone (existing path)
+                    }
+                    is Result.Error -> {
+                        // FR-006: keep user signed in, surface recoverable message, do NOT navigate
+                        setEvent { HomeEvent.SignOutFailed(result.error.toUserMessage()) }
+                    }
+                }
+            }
+            HomeIntent.SignOutCancelled -> setEvent { HomeEvent.SignOutCancelled }
         }
     }
 
@@ -81,5 +100,8 @@ class HomeViewModel @Inject constructor(
             HomeEvent.Loading -> oldState.copy(isLoading = true, error = null)
             is HomeEvent.Loaded -> oldState.copy(isLoading = false, user = event.user, error = null)
             is HomeEvent.Failed -> oldState.copy(isLoading = false, error = event.message)
+            HomeEvent.SignOutDialogShown -> oldState.copy(showSignOutConfirm = true)
+            is HomeEvent.SignOutFailed -> oldState.copy(showSignOutConfirm = false, signOutError = event.message)
+            HomeEvent.SignOutCancelled -> oldState.copy(showSignOutConfirm = false)
         }
 }

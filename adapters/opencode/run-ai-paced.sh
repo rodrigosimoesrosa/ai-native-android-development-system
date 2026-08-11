@@ -61,7 +61,10 @@ fi
 export PROVENANCE_AGENT="opencode"
 export PROVENANCE_MODEL="$PROVIDER/$MODEL"
 PROMPT='You are the autonomous executor of an approved plan. Implement the next task ($NEXT_TASK) from $TASKS for spec $SPEC by editing files in this repo. When it passes the checks, mark that task [x] in $TASKS. If checks fail, read $GATE_LOG and fix. Do not commit. Keep changes minimal and in-scope.'
-export AI_PACED_AGENT_CMD="opencode run --model '$PROVIDER/$MODEL' \"$PROMPT\""
+# --auto: auto-approve tool permissions. REQUIRED for headless `opencode run` — without it opencode
+# auto-rejects every file read/edit and the executor makes zero progress. Safe here: the brain is
+# scoped to this repo/branch and every change passes the gate + human merge review (run-modes.yml).
+export AI_PACED_AGENT_CMD="opencode run --auto --model '$PROVIDER/$MODEL' \"$PROMPT\""
 
 echo "▶ launching ai-paced — brain: opencode ($PROVIDER/$MODEL)"
 exec bash scripts/ai-paced-run.sh
