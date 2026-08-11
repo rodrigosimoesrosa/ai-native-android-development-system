@@ -236,16 +236,43 @@ Boring, mainstream, deterministic — the novelty budget is spent on the *proces
 
 | Area | State |
 |---|---|
-| Knowledge layer (vision, constitution, 6 ADRs) | ✅ in git, cross-linked |
+| Knowledge layer (vision, constitution, 10 ADRs) | ✅ in git, cross-linked |
 | Module skeleton + `:core`/`:core-ui` contracts | ✅ built & tested |
-| Feature `001-otp-auth` — **US1** (sign-in → Home) | ✅ implemented & verified (APK builds, tests green) |
-| `001-otp-auth` — US2 (transparent refresh), US3 (teardown) | ⬜ specced & tasked, not yet built |
-| Verification loop (local hook + CI) | ✅ active (CI runs once a GitHub remote exists) |
-| `methods/` + `adapters/` extraction, cold-start CI check | ⬜ aspirational (v1 roadmap, ADR-0001) |
+| `001-otp-auth` — US1 sign-in → Home, US2 transparent refresh, US3 teardown | ✅ implemented & verified (63/63 tasks, tests green) |
+| `002-user-profile` — view details, edit name, theme + notification prefs | ✅ implemented & verified (26/26 tasks) |
+| `003-navigation` — authenticated bottom-bar shell, per-tab state | ✅ implemented & verified (13/13 tasks) |
+| `004-confirm-sign-out` — confirm dialog, **ai-paced by the opencode adapter** (local LLM) | ✅ implemented & verified (12/12 tasks) |
+| Verification loop (local Stop-hook + CI: guardrails · build · instrumented · metrics) | ✅ active |
+| Provenance trailers + process metrics (ADR-0010) | ✅ live (`scripts/metrics.sh`, CI `metrics` job) |
+| Second adapter (opencode / local Ollama · LM Studio) | ✅ real — shipped spec 004 end-to-end |
+| `methods/` + `adapters/` extraction to a stand-alone, cold-start-tested harness | ⬜ aspirational (v2 roadmap, ADR-0001) |
 
 This mirrors the vision's honesty stance (§8): the README says what is real, what is aspirational, and
 that both humans and agents authored this. See the [roadmap](docs/00-vision-and-architecture.md#10-roadmap)
 (v1 → v2 → v3).
+
+---
+
+## By the numbers (evidence, not claims)
+
+The process is auditable because provenance is in git: every stamped commit carries `Provenance-Spec`,
+`Provenance-Method`, `Provenance-Agent`, and `Provenance-Model` trailers (ADR-0010). Regenerate any of
+this yourself with [`scripts/metrics.sh`](scripts/metrics.sh):
+
+| Metric | Value |
+|---|---|
+| Features shipped through the full loop (spec → plan → tasks → implement → verify → record) | **4** (`001`–`004`) |
+| Tasks executed, all closed | **114** (63 + 26 + 13 + 12) |
+| Unit tests | **green** (`./gradlew test`, CI-gated on every push/PR) |
+| Commits with machine-readable provenance | traceable to spec + agent + method |
+| Work driven **ai-paced** (autonomous over approved tasks) | **22%** of stamped commits |
+| Autonomous work by a **local** model | spec `004`, executed by `qwen 35B` via LM Studio — **zero cloud calls** |
+| Human gates never crossed autonomously | merge · architecture · dependency-add · release |
+
+The headline isn't "AI wrote the code." It's that a **local** model shipped a real feature end-to-end
+inside guardrails it could not bypass — the same tests, detekt, and merge gate a human faces — and left
+a provenance trail proving exactly what it did. That is the case for **AI as architecture**: the system,
+not the model, is the differentiator.
 
 ---
 
@@ -256,3 +283,12 @@ that both humans and agents authored this. See the [roadmap](docs/00-vision-and-
 - [ADRs](decisions/) — every decision, with rationale and alternatives.
 - [`specs/001-otp-auth/`](specs/001-otp-auth/) — a complete worked feature (spec → plan → tasks).
 - [index.md](index.md) — the knowledge map (renders as a graph in Obsidian / GitHub).
+
+---
+
+## License & author
+
+MIT © 2026 Rodrigo Simões Rosa — see [LICENSE](LICENSE). Fork it, run the loop, swap the adapter.
+
+This repository is the reference implementation behind an article on **using AI as architecture in an
+Android project**. Both humans and models authored it, and the provenance trailers say which did what.
