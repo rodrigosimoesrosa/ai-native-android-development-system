@@ -25,6 +25,7 @@ graph TD
     A8["ADR-0008 · methods/ + adapters/ layout"]
     A9["ADR-0009 · Run modes: human/ai-paced"]
     A10["ADR-0010 · Automated provenance + metrics"]
+    A11["ADR-0011 · Visual-regression testing (deferred)"]:::todo
     KG["ADR (future) · Knowledge graph"]:::todo
     MET["methods/ — neutral how"]
     ADP["adapters/ — tool invocation"]
@@ -52,6 +53,8 @@ graph TD
     A10 --> CON
     A10 --> MET
     A10 --> A9
+    IDX -.-> A11
+    A11 -.-> A7
     A1 --> VIS
     A2 --> A1
     A2 --> VIS
@@ -88,6 +91,7 @@ graph TD
 - [ADR-0008 — Materialize the methods/ + adapters/ layout](decisions/ADR-0008-methods-and-adapters-layout.md)
 - [ADR-0009 — Run modes: human-paced / ai-paced](decisions/ADR-0009-run-modes-human-paced-and-ai-paced.md)
 - [ADR-0010 — Automated provenance (commit trailers) + metrics](decisions/ADR-0010-automated-provenance-and-metrics.md)
+- [ADR-0011 — Visual-regression (snapshot) testing](decisions/ADR-0011-visual-regression-testing-deferred.md) — **Deferred** (revisit when ai-paced authors non-trivial Compose UI)
 
 ## Specs
 
