@@ -124,7 +124,7 @@ model. See ADR-0003/0004/0005/0006 for the binding decisions.
 
 ```
 methods/             # the neutral, tool-agnostic "how" of each capability (ADR-0008)
-adapters/            # thin tool layer that invokes methods (claude-code active, opencode planned)
+adapters/            # thin tool layer that invokes methods (claude-code + opencode both active)
 .specify/            # Spec Kit engine: templates, scripts, constitution (part of the tool adapter)
 decisions/           # ADRs — every non-trivial decision, cross-linked
 docs/                # Vision & architecture (the "why")
@@ -220,8 +220,8 @@ The verification loop closes **Principle III** on two sides:
 - **Local (in-session):** a `Stop` hook (`.claude/settings.json` → `scripts/gradle-verify.sh`) runs
   the fast JVM tests whenever Kotlin/Gradle sources changed and feeds failures back to the agent to
   keep fixing. Skips when nothing relevant changed.
-- **CI (merge gate):** `.github/workflows/ci.yml` runs `./gradlew test` on every push/PR — green is
-  the definition of "done".
+- **CI (merge gate):** `.github/workflows/ci.yml` runs the full gate on every push/PR — guardrails ·
+  build (`./gradlew test` + detekt) · instrumented (emulator) · metrics. Green is the definition of "done".
 
 ### Step 6 — Record & merge (human gate)
 
@@ -327,10 +327,12 @@ not the model, is the differentiator.
 
 ## Where to read next
 
+- **[Live case study](https://rodrigosimoesrosa.github.io/ai-native-android-development-system/)** — the architecture at a glance (GitHub Pages).
 - [Constitution](.specify/memory/constitution.md) — the rules humans and agents build by.
 - [Vision & Architecture](docs/00-vision-and-architecture.md) — what this is and why.
 - [ADRs](decisions/) — every decision, with rationale and alternatives.
 - [`specs/001-otp-auth/`](specs/001-otp-auth/) — a complete worked feature (spec → plan → tasks).
+- [`specs/004-confirm-sign-out/`](specs/004-confirm-sign-out/) — the same loop driven **ai-paced by a local LLM** (opencode).
 - [index.md](index.md) — the knowledge map (renders as a graph in Obsidian / GitHub).
 
 ---

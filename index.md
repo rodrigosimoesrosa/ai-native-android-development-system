@@ -97,13 +97,14 @@ Transient work units that travel the loop; the durable decisions they inherit li
 - [001 — OTP Auth](specs/001-otp-auth/spec.md)
 - [002 — User Profile](specs/002-user-profile/spec.md)
 - [003 — App Navigation Shell](specs/003-navigation/spec.md)
+- [004 — Confirm Sign-Out](specs/004-confirm-sign-out/spec.md) — implemented **ai-paced by opencode** (local LLM)
 
 ## Method layer (neutral core vs. adapters)
 
 The portability guarantee of ADR-0001, made concrete (ADR-0008):
 
 - [`methods/`](methods/README.md) — the tool-agnostic "how" of each capability.
-- [`adapters/`](adapters/README.md) — the thin, disposable tool layer ([claude-code](adapters/claude-code/README.md) active, [opencode](adapters/opencode/README.md) planned).
+- [`adapters/`](adapters/README.md) — the thin, disposable tool layer: [claude-code](adapters/claude-code/README.md) and [opencode](adapters/opencode/README.md) (a **local** LLM) are **both active** — opencode drove spec `004` end-to-end.
 
 ## Not created yet (dangling nodes — intentional)
 

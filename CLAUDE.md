@@ -31,6 +31,7 @@ with an ADR, **stop and escalate** — do not invent a new architectural decisio
 - [`methods/sdd-loop.md`](methods/sdd-loop.md) — the loop: `spec → plan → break down → implement → verify → record`.
 - [`methods/verify-change.md`](methods/verify-change.md) — the definition of "done": a change is done only when checks pass.
 - [`methods/run-modes.md`](methods/run-modes.md) + [`run-modes.yml`](run-modes.yml) — human-paced vs **ai-paced** driver + gate policy.
+- [`scripts/ai-paced-run.sh`](scripts/ai-paced-run.sh) + [`adapters/`](adapters/README.md) — the tool-neutral ai-paced harness with a **pluggable brain**: [claude-code](adapters/claude-code/README.md) and [opencode](adapters/opencode/README.md) (a **local** LLM) are **both active** — opencode drove spec `004` end-to-end.
 - [`methods/write-adr.md`](methods/write-adr.md) — how to record a decision.
 - [`methods/record-provenance.md`](methods/record-provenance.md) — provenance trailers (Principle IV / ADR-0010).
 
