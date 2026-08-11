@@ -68,4 +68,6 @@ automatically. In **human-paced** the defaults yield `human` / `manual`.
 - [x] Wire `PROVENANCE_*` export into the ai-paced harness (`scripts/ai-paced-run.sh`) and the
       per-adapter launchers.
 - [ ] CI check that agent-authored commits carry provenance trailers.
-- [ ] A richer metrics view (diff-size trend, onboarding-to-first-merge) when there is history to show.
+- [x] A richer metrics view: `scripts/metrics.sh` reports commits/diff-size plus per-spec, per-agent,
+      per-method breakdowns and the **ai-paced share**; a read-only `metrics` CI job publishes it to the
+      run summary and uploads a text artifact (see `.github/workflows/ci.yml`).
