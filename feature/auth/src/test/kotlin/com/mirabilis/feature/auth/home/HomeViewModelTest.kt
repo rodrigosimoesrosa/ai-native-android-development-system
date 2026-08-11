@@ -21,6 +21,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -64,18 +65,6 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `sign out routes to SendPhone`() = runTest(dispatcher) {
-        val session = FakeSessionRepository(initialAuthenticated = true)
-        val vm = viewModel(FakeAuthRepository(), session)
-
-        vm.effects.test {
-            vm.setIntent { HomeIntent.SignOut }
-            assertEquals(HomeEffect.NavigateToSendPhone, awaitItem())
-        }
-        assertEquals(1, session.signOutCallCount)
-    }
-
-    @Test
     fun `a non-renewable session (auth-state false) routes to SendPhone`() = runTest(dispatcher) {
         val session = FakeSessionRepository(initialAuthenticated = true)
         val vm = viewModel(FakeAuthRepository(), session)
@@ -84,5 +73,86 @@ class HomeViewModelTest {
             session.authState.value = false // simulates the authenticator clearing the session
             assertEquals(HomeEffect.NavigateToSendPhone, awaitItem())
         }
+    }
+
+    @Test
+    fun `SignOutRequested sets showSignOutConfirm=true and does NOT invoke SignOutUseCase`() = runTest(dispatcher) {
+        val session = FakeSessionRepository(initialAuthenticated = true)
+        val vm = viewModel(FakeAuthRepository(), session)
+
+        advanceUntilIdle()
+        assertEquals(false, vm.state.value.showSignOutConfirm)
+        vm.setIntent { HomeIntent.SignOutRequested }
+        advanceUntilIdle()
+        assertTrue(vm.state.value.showSignOutConfirm)
+        assertEquals(0, session.signOutCallCount)
+    }
+
+    @Test
+    fun `SignOutConfirmed invokes SignOutUseCase and emits NavigateToSendPhone on success`() = runTest(dispatcher) {
+        val session = FakeSessionRepository(initialAuthenticated = true)
+        val vm = viewModel(FakeAuthRepository(), session)
+
+        advanceUntilIdle()
+        vm.effects.test {
+            vm.setIntent { HomeIntent.SignOutConfirmed }
+            advanceUntilIdle()
+            assertEquals(1, session.signOutCallCount)
+            assertEquals(HomeEffect.NavigateToSendPhone, awaitItem())
+        }
+    }
+
+    @Test
+    fun `SignOutConfirmed with Error keeps user, sets signOutError, emits NO NavigateToSendPhone`() =
+        runTest(dispatcher) {
+            val auth = FakeAuthRepository(currentUserResult = Result.Success(User("u_1", "+15551234567", "Ada")))
+            val session = FakeSessionRepository(
+                initialAuthenticated = true,
+                signOutResult = Result.Error(AppError.Network),
+            )
+            val vm = viewModel(auth, session)
+
+            advanceUntilIdle()
+            assertEquals("Ada", vm.state.value.user?.displayName)
+            assertEquals(false, vm.state.value.showSignOutConfirm)
+            assertEquals(null, vm.state.value.signOutError)
+
+            vm.effects.test {
+                vm.setIntent { HomeIntent.SignOutConfirmed }
+                advanceUntilIdle()
+                assertEquals(1, session.signOutCallCount)
+                // User must still be present (not signed out)
+                assertEquals("Ada", vm.state.value.user?.displayName)
+                // Dialog should be closed
+                assertEquals(false, vm.state.value.showSignOutConfirm)
+                // Error message should be surfaced
+                assertNotNull(vm.state.value.signOutError)
+                // NO NavigateToSendPhone — user stays signed in
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `SignOutCancelled clears dialog, does NOT invoke SignOutUseCase, user unchanged`() = runTest(dispatcher) {
+        val auth = FakeAuthRepository(currentUserResult = Result.Success(User("u_1", "+15551234567", "Ada")))
+        val session = FakeSessionRepository(initialAuthenticated = true)
+        val vm = viewModel(auth, session)
+
+        advanceUntilIdle()
+        assertEquals("Ada", vm.state.value.user?.displayName)
+        assertEquals(false, vm.state.value.showSignOutConfirm)
+
+        // First: show the dialog via SignOutRequested
+        vm.setIntent { HomeIntent.SignOutRequested }
+        advanceUntilIdle()
+        assertTrue(vm.state.value.showSignOutConfirm)
+        assertEquals(0, session.signOutCallCount)
+
+        // Then: cancel — clears the dialog, does NOT call signOutUseCase, user stays
+        vm.setIntent { HomeIntent.SignOutCancelled }
+        advanceUntilIdle()
+        assertEquals(false, vm.state.value.showSignOutConfirm)
+        assertEquals("Ada", vm.state.value.user?.displayName)
+        assertEquals(0, session.signOutCallCount)
     }
 }
