@@ -214,7 +214,7 @@ The single rule that makes the whole system survive a tool swap (ADR-0001):
 ┌───────────────────────────▼───────────────────────────────┐
 │  ADAPTER LAYER (tool-specific) — packaging/invocation only │
 │  adapters/claude-code/  (SKILL.md, hooks, settings)        │
-│  adapters/opencode/     (added only when/if needed)        │
+│  adapters/opencode/     (active — a local-LLM brain)       │
 └───────────────────────────────────────────────────────────┘
 ```
 
@@ -263,7 +263,7 @@ Deliberately conventional so novelty stays in the process:
 
 ### v3 — "It's a reusable method, not just this repo"
 - Extract the process layer into a documented, portable template others can adopt on a *different* codebase (prove Android was incidental).
-- **Add a second adapter (`adapters/opencode/`)** to prove tool-neutrality is real, not asserted (ADR-0001). The neutral core stays untouched.
+- ✅ **Second adapter shipped (`adapters/opencode/`)** — a **local** LLM (Ollama / LM Studio) drove spec `004` end-to-end, proving tool-neutrality is real, not asserted (ADR-0001). The neutral core stayed untouched.
 - Optional richer knowledge backend *only if* a real query need was demonstrated in v2.
 - Case study / write-up: measured results, what worked, what didn't, honest limits.
 - Community: contribution guide written for humans *and* agents.
@@ -274,7 +274,7 @@ Deliberately conventional so novelty stays in the process:
 ## Decision log
 
 - **[ADR-0001](../decisions/ADR-0001-build-on-existing-tools-neutral-core.md)** — Neutral core in git, AI tools as pluggable adapters. Compose Spec Kit + Claude Code; do not reinvent. *(Accepted)*
-- **[ADR-0002](../decisions/ADR-0002-adopt-spec-kit-as-sdd-engine.md)** — Adopt GitHub Spec Kit `0.12.2` as the SDD engine (skills mode, Claude Code integration). opencode confirmed available as a swap target. *(Accepted)*
+- **[ADR-0002](../decisions/ADR-0002-adopt-spec-kit-as-sdd-engine.md)** — Adopt GitHub Spec Kit `0.12.2` as the SDD engine (skills mode, Claude Code integration). opencode adopted as a second adapter — shipped spec `004` end-to-end. *(Accepted)*
 - **[ADR-0003](../decisions/ADR-0003-android-architecture-clean-mvi.md)** — Android architecture: pragmatic Clean Architecture + MVI, pure domain, model-per-layer, typed `Result`/`AppError`. *(Accepted)*
 - **[ADR-0004](../decisions/ADR-0004-dependency-injection-hilt.md)** — Dependency Injection with Hilt (on Dagger `2.56.2`, amended from `2.60.1` for the AGP-8 baseline — see ADR-0004 §Amendments); `:app` as composition root, domain stays pure. *(Accepted)*
 - **[ADR-0005](../decisions/ADR-0005-local-persistence-room-datastore.md)** — Local persistence: Room `2.8.4` for relational data (`Product` → `ProductEntity`) + Proto DataStore `1.2.1` for single-object/typed state (the current `User` → `UserProto`, settings, flags). Persistence types confined to `:data`, mapped straight to domain; offline-first. *(Accepted)*
