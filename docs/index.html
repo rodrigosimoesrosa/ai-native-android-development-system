@@ -231,6 +231,16 @@
   tr:last-child td { border-bottom: none; }
   td .adr { font-family: var(--mono); font-size: .78rem; color: var(--machine); }
 
+  /* ---------- knowledge graph ---------- */
+  .kgraph-wrap { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 10px; overflow-x: auto; box-shadow: var(--shadow); }
+  .kgraph { width: 100%; height: auto; display: block; min-width: 520px; }
+  .kgraph .edge { stroke: var(--line-strong); stroke-width: 1.5; }
+  .kgraph .node { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.5; }
+  .kgraph .hub { fill: var(--machine-soft); stroke: var(--machine); stroke-width: 2; }
+  .kgraph .lbl { font-family: var(--mono); font-size: 13px; fill: var(--ink); }
+  .kgraph .lbl.h { font-weight: 600; }
+  .kgraph .cap { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+
   /* ---------- run the loop ---------- */
   .cmds { display: grid; gap: 12px; }
   .cmd { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--stage, var(--human)); border-radius: 10px; padding: 15px 18px; box-shadow: var(--shadow); }
@@ -307,6 +317,58 @@
       <p>Autonomy is bounded. An agent works an <strong>already-approved</strong> task list to green —
         and stops at every checkpoint that needs human judgment.</p>
       <div class="list"><span>merge</span><span>architecture change</span><span>dependency add</span><span>release</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The layer under everything</p>
+      <h2>The knowledge is a graph — and it is the source of truth</h2>
+      <p class="muted">Most teams scatter intent across tickets, decisions across chat, and conventions
+        inside someone's head. Here the constitution, the architecture decisions (ADRs), the neutral
+        methods, and every spec are <strong>versioned, cross-linked markdown in git</strong> — a
+        navigable graph with a Knowledge Map (<code>index.md</code>) as its hub, where each decision
+        links to the decisions it depends on. It renders as an interactive graph in Obsidian and inline
+        on GitHub.</p>
+    </div>
+
+    <div class="kgraph-wrap">
+      <svg class="kgraph" viewBox="0 0 620 300" role="img" aria-label="The project's knowledge graph: a Knowledge Map hub linking the constitution, vision, ADRs, methods, and specs.">
+        <g>
+          <line class="edge" x1="310" y1="150" x2="105" y2="56" />
+          <line class="edge" x1="310" y1="150" x2="105" y2="251" />
+          <line class="edge" x1="310" y1="150" x2="515" y2="51" />
+          <line class="edge" x1="310" y1="150" x2="520" y2="156" />
+          <line class="edge" x1="310" y1="150" x2="515" y2="256" />
+          <line class="edge" x1="515" y1="51" x2="520" y2="156" />
+        </g>
+        <rect class="node" x="30" y="35" width="150" height="42" rx="9" />
+        <rect class="node" x="30" y="230" width="150" height="42" rx="9" />
+        <rect class="node" x="440" y="30" width="150" height="42" rx="9" />
+        <rect class="node" x="450" y="135" width="140" height="42" rx="9" />
+        <rect class="node" x="440" y="235" width="150" height="42" rx="9" />
+        <rect class="hub" x="222" y="123" width="176" height="54" rx="11" />
+        <text class="lbl" x="105" y="61" text-anchor="middle">constitution</text>
+        <text class="lbl" x="105" y="256" text-anchor="middle">vision &amp; arch</text>
+        <text class="lbl" x="515" y="56" text-anchor="middle">decisions/ · ADRs</text>
+        <text class="lbl" x="520" y="161" text-anchor="middle">methods/</text>
+        <text class="lbl" x="515" y="261" text-anchor="middle">specs/</text>
+        <text class="lbl h" x="310" y="146" text-anchor="middle">Knowledge Map</text>
+        <text class="cap" x="310" y="164" text-anchor="middle">index.md</text>
+      </svg>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="card">
+        <div class="k">One source of truth</div>
+        <p class="muted" style="margin:0">The same files a person reads are the context an agent reads —
+          no drift between "the docs" and what the code assumes. Humans and models act on one graph.</p>
+      </div>
+      <div class="card">
+        <div class="k">The docs are tested</div>
+        <p class="muted" style="margin:0">CI validates that every internal link resolves. A broken
+          cross-reference fails the build, exactly like a broken test — knowledge that rots is caught.</p>
+      </div>
     </div>
   </section>
 
