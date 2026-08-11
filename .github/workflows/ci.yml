@@ -2,7 +2,8 @@ name: CI
 
 # The "green = done" gate (Constitution Principle III + the merge human-gate). Runs the method
 # guardrails (fast, no Gradle), then the full JVM unit-test suite + static analysis (detekt), then the
-# instrumented (connectedAndroidTest) suite on a hardware-accelerated emulator.
+# instrumented (connectedAndroidTest) suite on a hardware-accelerated emulator. A read-only `metrics`
+# job (ADR-0010) computes process health from git history and publishes it to the run summary.
 on:
   push:
     branches: [ main ]
@@ -89,3 +90,23 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot
           script: ./gradlew :feature:navigation:connectedDebugAndroidTest --console=plain
+
+  metrics:
+    # Process health measured from git, not asserted (ADR-0010 / vision §7). Read-only; no build deps.
+    # Publishes to the run summary and uploads a text artifact. Full history is required for the counts.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # metrics.sh counts commits + reads Provenance-* trailers across history
+
+      - name: Compute process metrics
+        run: |
+          bash scripts/metrics.sh | tee metrics.txt
+          bash scripts/metrics.sh --markdown >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: process-metrics
+          path: metrics.txt
