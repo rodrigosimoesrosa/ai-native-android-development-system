@@ -231,6 +231,16 @@
   tr:last-child td { border-bottom: none; }
   td .adr { font-family: var(--mono); font-size: .78rem; color: var(--machine); }
 
+  /* ---------- run the loop ---------- */
+  .cmds { display: grid; gap: 12px; }
+  .cmd { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--stage, var(--human)); border-radius: 10px; padding: 15px 18px; box-shadow: var(--shadow); }
+  .cmd.mc { --stage: var(--machine); }
+  .cmd .step { font-family: var(--mono); font-size: .78rem; color: var(--stage, var(--human)); font-weight: 600; padding-top: 3px; white-space: nowrap; }
+  .cmd .body { min-width: 0; }
+  .cmd .line { font-family: var(--mono); font-size: .9rem; color: var(--ink); overflow-x: auto; }
+  .cmd .line b { color: var(--stage, var(--human)); }
+  .cmd small { display: block; color: var(--muted); font-size: .82rem; margin-top: 5px; line-height: 1.45; }
+
   /* ---------- footer ---------- */
   footer { border-top: 1px solid var(--line); padding: 44px 0 60px; }
   .cta { display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono); font-weight: 600; font-size: .92rem;
@@ -369,6 +379,46 @@
           <tr><td>Quality gate · detekt</td><td>every module · CI</td><td><span class="adr">ADR-0007</span></td></tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Try it — the loop in four commands</p>
+      <h2>How you create a new spec</h2>
+      <p class="muted">A person authors the intent and approves each artifact (human-paced); an agent
+        then works the approved list to green (ai-paced). Every feature travels the same four steps —
+        architecture is inherited from the ADRs, never re-decided.</p>
+    </div>
+    <div class="cmds">
+      <div class="cmd">
+        <span class="step">1 · human</span>
+        <div class="body">
+          <div class="line"><b>/speckit-specify</b> "Users can &lt;do X&gt;: &lt;behavior&gt;"</div>
+          <small>Creates <code>specs/&lt;NNN&gt;/spec.md</code> and a branch — user stories, acceptance scenarios, success criteria. Behavior only, no implementation detail.</small>
+        </div>
+      </div>
+      <div class="cmd">
+        <span class="step">2 · human</span>
+        <div class="body">
+          <div class="line"><b>/speckit-plan</b></div>
+          <small>Design + contracts, with the architecture pulled from the ADRs. A Constitution-Check gate resolves any open question here.</small>
+        </div>
+      </div>
+      <div class="cmd">
+        <span class="step">3 · human</span>
+        <div class="body">
+          <div class="line"><b>/speckit-tasks</b></div>
+          <small>A dependency-ordered, test-first checklist grouped by user story — this approved <code>tasks.md</code> is the handoff to the agent.</small>
+        </div>
+      </div>
+      <div class="cmd mc">
+        <span class="step">4 · agent</span>
+        <div class="body">
+          <div class="line"><b>/speckit-implement</b> &nbsp;— or hand the tasks to a local LLM via opencode</div>
+          <small>Works the list one task at a time, verifying each until green. You review and merge — the human gate. (This is exactly how spec 004 shipped.)</small>
+        </div>
+      </div>
     </div>
   </section>
 
