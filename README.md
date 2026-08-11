@@ -1,5 +1,10 @@
 # AI-Native Android Development System
 
+[![CI](https://github.com/rodrigosimoesrosa/ai-native-android-development-system/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigosimoesrosa/ai-native-android-development-system/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Dev model: AI-native](https://img.shields.io/badge/dev%20model-AI--native-8A63D2.svg)](docs/00-vision-and-architecture.md)
+[![Method: Spec-Driven](https://img.shields.io/badge/method-Spec--Driven-3AA675.svg)](https://github.com/github/spec-kit)
+
 > **This is not "an Android app."** Android is the **proving ground**. The product is a
 > **repeatable system for building software with AI agents** — where specifications,
 > decisions, and knowledge are as versioned, reviewable, and executable as the code itself.
@@ -44,6 +49,50 @@ spec  →  plan  →  tasks  →  implement  →  verify  →  record
 ## Architecture
 
 Two architectures coexist and are kept distinct.
+
+```mermaid
+flowchart TB
+    subgraph GIT["📚 Knowledge in git — the source of truth"]
+      direction LR
+      SP["specs/"]
+      DE["decisions/ · ADRs"]
+      ME["methods/"]
+    end
+
+    subgraph HUMAN["🧑 human-paced — a person drives"]
+      direction LR
+      S["specify"] --> P["plan<br/>architecture inherited from ADRs"] --> T["tasks<br/>approved breakdown"]
+    end
+
+    subgraph AGENT["🤖 ai-paced — an agent drives, autonomously"]
+      direction LR
+      I["implement<br/>one task at a time"] --> V{"verify<br/>tests · detekt"}
+      V -- red --> I
+    end
+
+    GIT --> HUMAN
+    T -- "handoff: approved tasks.md" --> I
+    V -- green --> PR["change request · PR"]
+    PR --> G{{"🧑 human gates<br/>merge · architecture · dependency · release"}}
+    G -- approved --> CI["main + CI<br/>guardrails · build · instrumented · metrics"]
+    CI --> R["record<br/>provenance trailers + metrics"]
+    R -. feeds the next unit .-> S
+
+    subgraph BRAIN["🔌 neutral core, pluggable brain — ADR-0001"]
+      direction LR
+      HAR["harness<br/>scripts/ai-paced-run.sh"]
+      CC["adapters/claude-code"]
+      OC["adapters/opencode<br/>local LLM"]
+    end
+    CC --- HAR --- OC
+    BRAIN -. plugs into .-> I
+```
+
+*The **process** (top) is the product; the Android app is where it is proven. Humans drive
+`specify → plan → tasks` and hold every merge/architecture/dependency/release **gate**; an agent
+autonomously drives `implement → verify` over an already-approved task list. The **brain is
+swappable** (Claude Code or a local LLM via opencode) without touching the project — spec 004 was
+shipped end-to-end by the opencode adapter.*
 
 ### 1. Engineering process (the actual product)
 
