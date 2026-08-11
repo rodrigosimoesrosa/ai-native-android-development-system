@@ -45,7 +45,14 @@ run_gate() { # shared verification gate (methods/verify-change.md): guardrails +
 remaining() { grep -cE '^[[:space:]]*- \[ \]' "$TASKS" 2>/dev/null; }
 next_task() { grep -m1 -E '^[[:space:]]*- \[ \]' "$TASKS" 2>/dev/null || true; }
 
-iter=0
+# max_fix_iterations bounds the FIX attempts on the CURRENT task, not the whole run — otherwise a plan
+# with more than max_iter tasks could never complete even when every step succeeds. We reset the counter
+# whenever the open-task count changes (a task got checked off → progress), and keep a generous global
+# safety cap against oscillation.
+prev_rem=-1
+fix_iter=0
+total_iter=0
+max_total=$(( 200 ))
 while : ; do
   gate_ok=1; run_gate || gate_ok=0
   rem="$(remaining)"; rem="${rem:-0}"
@@ -56,11 +63,19 @@ while : ; do
     exit 0
   fi
 
-  iter=$((iter + 1))
+  # Progress → reset the per-task fix budget; no progress → spend one attempt on the current task.
+  if [ "$rem" -ne "$prev_rem" ]; then fix_iter=0; fi
+  prev_rem="$rem"
+  fix_iter=$((fix_iter + 1))
+  total_iter=$((total_iter + 1))
   next="$(next_task)"
-  echo "· iteration $iter/$max_iter — $rem task(s) open, gate=$([ "$gate_ok" -eq 1 ] && echo GREEN || echo RED). Next: ${next:-<fix gate>}"
-  if [ "$iter" -gt "$max_iter" ]; then
-    echo "⛔ on_failure: bounded iterations exhausted → stop and report to a human. (run-modes.yml)"
+  echo "· task-attempt $fix_iter/$max_iter (total $total_iter) — $rem task(s) open, gate=$([ "$gate_ok" -eq 1 ] && echo GREEN || echo RED). Next: ${next:-<fix gate>}"
+  if [ "$fix_iter" -gt "$max_iter" ]; then
+    echo "⛔ on_failure: current task exceeded $max_iter fix attempts without progress → stop and report to a human. (run-modes.yml)"
+    exit 1
+  fi
+  if [ "$total_iter" -gt "$max_total" ]; then
+    echo "⛔ on_failure: global safety cap ($max_total) reached → stop and report to a human."
     exit 1
   fi
 
