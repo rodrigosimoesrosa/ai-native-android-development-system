@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Architecture — Responsibilities Map</title>
+<style>
+  :root{
+    --bg:#FBFDF6; --surface:#FFFFFF; --surface-2:#F1F5E9;
+    --ink:#14210D; --muted:#5C6B4C; --faint:#D8E0CA;
+    --accent:#3C5A14; --accent-2:#5E8E27; --ring:rgba(60,90,20,.30);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E1A08; --surface:#16240E; --surface-2:#1B2B10;
+      --ink:#E4EBDA; --muted:#9DB088; --faint:#2C3B20;
+      --accent:#9BD062; --accent-2:#7FB84C; --ring:rgba(155,208,98,.30);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1A08; --surface:#16240E; --surface-2:#1B2B10;
+    --ink:#E4EBDA; --muted:#9DB088; --faint:#2C3B20;
+    --accent:#9BD062; --accent-2:#7FB84C; --ring:rgba(155,208,98,.30);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:56px 24px 96px}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+
+  .eyebrow{
+    font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(28px,5vw,42px); line-height:1.1; letter-spacing:-.02em;
+    font-weight:800; margin:0 0 16px; text-wrap:balance;
+  }
+  .lede{font-size:18px; color:var(--muted); max-width:60ch; margin:0 0 8px}
+
+  h2{
+    font-size:22px; font-weight:750; letter-spacing:-.01em; margin:56px 0 6px;
+    text-wrap:balance;
+  }
+  h2 .num{
+    font-family:ui-monospace,monospace; font-size:14px; color:var(--accent);
+    margin-right:10px; font-weight:600;
+  }
+  .sub{color:var(--muted); margin:0 0 22px; max-width:64ch}
+
+  figure{margin:0}
+  .fig{
+    background:var(--surface); border:1px solid var(--faint); border-radius:14px;
+    padding:20px; overflow-x:auto;
+  }
+  .fig svg{display:block; width:100%; height:auto; color:var(--ink); min-width:560px}
+  figcaption{color:var(--muted); font-size:14px; margin-top:12px; padding-left:2px}
+
+  /* svg tokens */
+  .panel{fill:var(--surface-2); stroke:var(--faint); stroke-width:1.5}
+  .box{fill:var(--surface); stroke:var(--faint); stroke-width:1.5}
+  .box-acc{fill:var(--surface); stroke:var(--accent); stroke-width:1.75}
+  .lbl{fill:var(--ink)}
+  .mut{fill:var(--muted)}
+  .acc{fill:var(--accent)}
+  .edge{stroke:var(--muted); fill:none; stroke-width:1.75}
+  .edge-acc{stroke:var(--accent); fill:none; stroke-width:2}
+  .dash{stroke:var(--accent); stroke-width:1.5; stroke-dasharray:5 5; fill:none; opacity:.8}
+  text{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+  .t{font-size:13px; font-weight:600}
+  .s{font-size:11.5px}
+  .cap{font-size:11px; letter-spacing:.08em; text-transform:uppercase}
+
+  table{border-collapse:collapse; width:100%; font-size:14.5px; margin-top:4px}
+  th,td{text-align:left; padding:11px 12px; border-bottom:1px solid var(--faint); vertical-align:top}
+  thead th{
+    font-family:ui-monospace,monospace; font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted); font-weight:600;
+  }
+  tbody td:first-child{font-weight:650; white-space:nowrap}
+  .tag{
+    font-family:ui-monospace,monospace; font-size:11px; padding:2px 8px; border-radius:999px;
+    border:1px solid var(--faint); color:var(--muted); white-space:nowrap;
+  }
+  .tag.n{color:var(--accent); border-color:var(--ring)}
+  .tag.h{color:var(--ink); border-color:var(--ink)}
+
+  .key{
+    display:flex; flex-wrap:wrap; gap:8px 20px; margin:18px 0 0; padding:0; list-style:none;
+    font-size:13.5px; color:var(--muted);
+  }
+  .key li{display:flex; align-items:center; gap:8px}
+  .swatch{width:22px; height:0; border-top:2px solid var(--muted)}
+  .swatch.acc{border-top:2px solid var(--accent)}
+  .swatch.dashed{border-top:2px dashed var(--accent)}
+
+  .callout{
+    border-left:3px solid var(--accent); background:var(--surface-2);
+    padding:14px 18px; border-radius:0 10px 10px 0; margin:22px 0 0; color:var(--ink);
+  }
+  .callout b{color:var(--accent)}
+  strong{font-weight:700}
+  code{font-family:ui-monospace,monospace; font-size:.9em; background:var(--surface-2); padding:1px 6px; border-radius:5px}
+  .adrgrid{display:grid; grid-template-columns:1fr 1fr; gap:26px 32px; margin-top:12px}
+  @media (max-width:640px){.adrgrid{grid-template-columns:1fr}}
+  .fam h3{font-size:12px; font-family:ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin:0 0 4px; font-weight:700}
+  .fam p{margin:0 0 12px; color:var(--muted); font-size:13px}
+  .fam ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px}
+  .fam li{display:flex; gap:10px; align-items:baseline; font-size:14px}
+  .fam .id{font-family:ui-monospace,monospace; font-size:12px; color:var(--accent); flex:0 0 auto; font-weight:600}
+  .fam .ti{flex:1}
+  .st{font-family:ui-monospace,monospace; font-size:10px; letter-spacing:.05em; text-transform:uppercase; padding:1px 7px; border-radius:999px; border:1px solid var(--ring); flex:0 0 auto}
+  .st.def{color:var(--accent)}
+  .st.pro{color:var(--muted); border-style:dashed}
+  footer{margin-top:64px; padding-top:20px; border-top:1px solid var(--faint); color:var(--muted); font-size:13px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">AI-native development system · responsibilities map</p>
+  <h1>Who does what — and where each piece lives</h1>
+  <p class="lede">The confusion is almost always one thing: <em>what is neutral (runs on any brain)</em> versus <em>what belongs to the adapter (specific to the AI tool)</em>. These two drawings separate that.</p>
+
+  <!-- ================= DIAGRAM 1 ================= -->
+  <h2><span class="num">01</span>The boundary: neutral core ↔ adapter</h2>
+  <p class="sub">The golden rule (Principles IV &amp; V): <strong>knowledge lives in git</strong> and the mechanism is neutral; the <strong>AI brain is a swappable plug</strong>. Switching AI = regenerating an adapter, never rewriting the project.</p>
+
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 780 452" role="img" aria-label="Boundary diagram between the neutral core (git, harness, hook, metrics) and the pluggable adapter (the model, token capture, and future traces/logs/evals/fine-tuning). Context flows from git to the brain; only content-free aggregates flow back to git.">
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--muted)"/>
+          </marker>
+          <marker id="ahA" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- human gates banner -->
+        <rect x="16" y="12" width="748" height="44" rx="10" class="dash"/>
+        <text x="34" y="31" class="cap acc">✋ Human gates (never crossed autonomously)</text>
+        <text x="34" y="47" class="s mut">merge · architecture-change · dependency-add · release</text>
+
+        <!-- left panel: neutral -->
+        <rect x="16" y="80" width="392" height="356" rx="12" class="panel"/>
+        <text x="34" y="106" class="cap acc">Neutral core — runs on any brain</text>
+
+        <rect x="34" y="120" width="356" height="60" rx="9" class="box"/>
+        <text x="50" y="145" class="t lbl">Git — the truth</text>
+        <text x="50" y="165" class="s mut">specs · decisions/ADRs · methods · constitution</text>
+
+        <rect x="34" y="192" width="356" height="60" rx="9" class="box"/>
+        <text x="50" y="217" class="t lbl">ai-paced harness</text>
+        <text x="50" y="237" class="s mut">drives the loop · runs the gate · measures run-health</text>
+
+        <rect x="34" y="264" width="356" height="54" rx="9" class="box"/>
+        <text x="50" y="287" class="t lbl">Commit hook</text>
+        <text x="50" y="305" class="s mut">stamps trailers · consume-once</text>
+
+        <rect x="34" y="330" width="356" height="54" rx="9" class="box"/>
+        <text x="50" y="353" class="t lbl">metrics.sh · provenance.sh</text>
+        <text x="50" y="371" class="s mut">aggregates per spec · agent · model</text>
+
+        <!-- boundary -->
+        <line x1="428" y1="86" x2="428" y2="430" class="dash"/>
+
+        <!-- right panel: adapter -->
+        <rect x="448" y="80" width="316" height="356" rx="12" class="panel"/>
+        <text x="466" y="106" class="cap acc">Adapter — the brain, pluggable</text>
+
+        <rect x="466" y="120" width="280" height="60" rx="9" class="box-acc"/>
+        <text x="482" y="145" class="t lbl">The model</text>
+        <text x="482" y="165" class="s mut">claude-code · opencode (local)</text>
+
+        <rect x="466" y="192" width="280" height="48" rx="9" class="box-acc"/>
+        <text x="482" y="221" class="t lbl">Captures tokens <tspan class="mut">(only the adapter sees)</tspan></text>
+
+        <rect x="466" y="252" width="280" height="76" rx="9" class="box"/>
+        <text x="482" y="275" class="t lbl">Only here (future phases)</text>
+        <text x="482" y="295" class="s mut">traces · logs · evals</text>
+        <text x="482" y="313" class="s mut">fine-tuning (if ever)</text>
+
+        <rect x="466" y="340" width="280" height="44" rx="9" class="box"/>
+        <text x="482" y="367" class="s mut">never: domain logic / project knowledge</text>
+
+        <!-- crossing arrows -->
+        <line x1="392" y1="150" x2="466" y2="150" class="edge" marker-end="url(#ah)"/>
+        <text x="399" y="140" class="s mut">context in git →</text>
+
+        <line x1="466" y1="216" x2="392" y2="300" class="edge-acc" marker-end="url(#ahA)"/>
+        <text x="352" y="410" class="s acc" text-anchor="start">← content-free</text>
+        <text x="352" y="425" class="s acc" text-anchor="start">   aggregates only</text>
+      </svg>
+    </div>
+    <figcaption>Only one thing crosses back into git: content-free numbers (tokens, health). Prompts/responses never cross. Fine-tuning and rich telemetry live on the right.</figcaption>
+  </figure>
+
+  <ul class="key">
+    <li><span class="swatch"></span> neutral flow</li>
+    <li><span class="swatch acc"></span> crosses the boundary (observability)</li>
+    <li><span class="swatch dashed"></span> boundary / human gate</li>
+  </ul>
+
+  <div class="callout">
+    <b>This is why</b> fine-tuning and runtime observability (tokens, traces, logs, evals) were decided as <b>adapter-scoped</b> (ADR-0012): they are tool-specific. The core only ever receives the summary, in git.
+  </div>
+
+  <!-- ================= DIAGRAM 2 ================= -->
+  <h2><span class="num">02</span>The loop — and where a run's metrics come from</h2>
+  <p class="sub">The same SDD loop, showing the point that trips people up: the agent and the harness <strong>do not commit</strong>. A session's numbers wait in a <strong>sidecar</strong> inside <code>.git/</code> until the next commit, and the hook stamps them (then deletes the sidecar → one session = one commit).</p>
+
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 860 300" role="img" aria-label="Loop flow: git (spec, plan, tasks) approved by a human gate goes to the ai-paced harness which iterates implement-verify-mark until the gate is green; the session writes tokens (from the adapter) and run-health (from the harness) to a sidecar in .git; on the next commit the hook stamps the trailers; metrics.sh aggregates; merge is a human gate.">
+        <defs>
+          <marker id="ah2" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--muted)"/>
+          </marker>
+          <marker id="ah2A" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- boxes -->
+        <rect x="14" y="92" width="150" height="72" rx="9" class="box"/>
+        <text x="28" y="120" class="t lbl">Git</text>
+        <text x="28" y="140" class="s mut">spec → plan →</text>
+        <text x="28" y="156" class="s mut">tasks</text>
+
+        <rect x="212" y="92" width="176" height="72" rx="9" class="box"/>
+        <text x="228" y="120" class="t lbl">ai-paced harness</text>
+        <text x="228" y="140" class="s mut">implement → verify</text>
+        <text x="228" y="156" class="s mut">→ mark [x]</text>
+
+        <rect x="436" y="92" width="158" height="72" rx="9" class="box-acc"/>
+        <text x="452" y="120" class="t lbl">Sidecar (.git/)</text>
+        <text x="452" y="140" class="s acc">tokens ← adapter</text>
+        <text x="452" y="156" class="s acc">run-health ← harness</text>
+
+        <rect x="642" y="92" width="104" height="72" rx="9" class="box"/>
+        <text x="658" y="120" class="t lbl">Hook</text>
+        <text x="658" y="140" class="s mut">stamps</text>
+        <text x="658" y="156" class="s mut">trailers</text>
+
+        <rect x="770" y="92" width="76" height="72" rx="9" class="box"/>
+        <text x="784" y="120" class="t lbl">metrics</text>
+        <text x="784" y="140" class="s mut">.sh</text>
+        <text x="784" y="156" class="s mut">aggregate</text>
+
+        <!-- flow arrows -->
+        <line x1="164" y1="128" x2="212" y2="128" class="edge" marker-end="url(#ah2)"/>
+        <text x="150" y="82" class="s acc">✋ approved</text>
+
+        <line x1="388" y1="128" x2="436" y2="128" class="edge" marker-end="url(#ah2)"/>
+        <text x="393" y="82" class="s mut">session</text>
+
+        <line x1="594" y1="128" x2="642" y2="128" class="edge" marker-end="url(#ah2)"/>
+        <text x="580" y="82" class="s mut">next commit</text>
+
+        <line x1="746" y1="128" x2="770" y2="128" class="edge" marker-end="url(#ah2)"/>
+
+        <!-- loop over harness -->
+        <path d="M300 92 C300 58, 236 58, 236 88" class="edge" marker-end="url(#ah2)"/>
+        <text x="248" y="50" class="s mut">↺ until the gate is green</text>
+
+        <!-- merge gate note -->
+        <rect x="642" y="200" width="204" height="40" rx="9" class="dash"/>
+        <text x="658" y="219" class="s acc">✋ merge = human gate</text>
+        <text x="658" y="234" class="s mut">a person reviews before it lands</text>
+        <line x1="744" y1="200" x2="720" y2="166" class="edge-acc" marker-end="url(#ah2A)"/>
+      </svg>
+    </div>
+    <figcaption>The <strong>consume-once</strong> behavior (the hook deletes the sidecar after stamping) is what guarantees "one session → one commit", with no double counting — for free.</figcaption>
+  </figure>
+
+  <!-- ================= TABLE ================= -->
+  <h2><span class="num">03</span>Responsibilities table</h2>
+  <p class="sub">Who owns what — and who sees tokens. Note: only the adapter sees tokens; the harness measures health; the hook records; the human decides the gates.</p>
+
+  <div style="overflow-x:auto">
+  <table>
+    <thead>
+      <tr><th>Piece</th><th>Layer</th><th>Responsibility</th><th>Tokens?</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Git core</td><td><span class="tag n">neutral</span></td>
+        <td>The truth: <em>what</em> to build (specs), <em>why</em> (ADRs), <em>how</em> (methods), the rules (constitution)</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>SDD loop / Spec Kit</td><td><span class="tag n">neutral</span></td>
+        <td>spec → plan → tasks → implement → verify → record</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>ai-paced harness</td><td><span class="tag n">neutral</span></td>
+        <td>Executes approved tasks; runs the gate; measures <strong>run-health</strong> (latency, retries, errors, outcome)</td>
+        <td>writes health</td>
+      </tr>
+      <tr>
+        <td>Adapter</td><td><span class="tag h">brain</span></td>
+        <td><code>claude-code</code> / <code>opencode</code>: runs the model; <strong>captures tokens</strong>; future: traces/logs/evals; where fine-tuning would live</td>
+        <td><strong>yes</strong></td>
+      </tr>
+      <tr>
+        <td>Commit hook</td><td><span class="tag n">neutral</span></td>
+        <td>Stamps provenance + run-metric trailers; consume-once</td>
+        <td>records</td>
+      </tr>
+      <tr>
+        <td>metrics · provenance</td><td><span class="tag n">neutral</span></td>
+        <td>Aggregates trailers per spec / agent / model (read-only, git-only)</td>
+        <td>reads</td>
+      </tr>
+      <tr>
+        <td>Human gates</td><td><span class="tag h">human</span></td>
+        <td>merge · architecture-change · dependency-add · release — never automatic</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <b>In one sentence.</b> The core (git + harness + hook + metrics) is <b>neutral</b> and holds the truth and the mechanism; the <b>adapter</b> is the swappable brain that thinks and sees tokens; the <b>human</b> holds the four gates. The project's lever is <b>context in git</b> — not model weights, not provider telemetry.
+  </div>
+
+  <!-- ================= DIAGRAM 3: DECISIONS ================= -->
+  <h2><span class="num">04</span>Decisions (<code>decisions/</code>): the rules you build within</h2>
+  <p class="sub">Architecture is <strong>decided once, not re-decided per feature</strong>. Each ADR is recorded once, becomes immutable in git, and <strong>binds all future work</strong>. Features don't re-argue architecture — they inherit it at planning time. A task that would break an ADR is not a judgment call: it <strong>stops and escalates</strong> (the architecture-change human gate).</p>
+
+  <figure>
+    <div class="fig">
+      <svg viewBox="0 0 860 288" role="img" aria-label="How a decision is used: write-adr records a decision once into decisions/ADR-NNNN (immutable, in git); at speckit-plan the feature inherits the ADRs; tasks.md names its governing ADRs; each task either fits the ADRs and is implemented within them, or conflicts and must stop and escalate to the architecture-change human gate.">
+        <defs>
+          <marker id="ah3" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--muted)"/>
+          </marker>
+          <marker id="ah3A" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+            <polygon points="0,0 9,4 0,8" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- top row -->
+        <rect x="14" y="40" width="150" height="72" rx="9" class="box"/>
+        <text x="28" y="68" class="t lbl">write-adr</text>
+        <text x="28" y="88" class="s mut">record a</text>
+        <text x="28" y="104" class="s mut">decision once</text>
+
+        <rect x="206" y="40" width="176" height="72" rx="9" class="box-acc"/>
+        <text x="222" y="68" class="t lbl">decisions/ADR-NNNN</text>
+        <text x="222" y="88" class="s mut">immutable · in git</text>
+        <text x="222" y="104" class="s mut">"why it exists" (Princ. IV)</text>
+
+        <rect x="430" y="40" width="160" height="72" rx="9" class="box"/>
+        <text x="446" y="68" class="t lbl">/speckit-plan</text>
+        <text x="446" y="88" class="s mut">feature inherits</text>
+        <text x="446" y="104" class="s mut">the ADRs</text>
+
+        <rect x="632" y="40" width="168" height="72" rx="9" class="box"/>
+        <text x="648" y="68" class="t lbl">tasks.md</text>
+        <text x="648" y="88" class="s mut">names its</text>
+        <text x="648" y="104" class="s mut">governing ADRs</text>
+
+        <line x1="164" y1="76" x2="206" y2="76" class="edge" marker-end="url(#ah3)"/>
+        <line x1="382" y1="76" x2="430" y2="76" class="edge" marker-end="url(#ah3)"/>
+        <text x="388" y="32" class="s mut">inherited</text>
+        <line x1="590" y1="76" x2="632" y2="76" class="edge" marker-end="url(#ah3)"/>
+
+        <!-- fork -->
+        <rect x="430" y="196" width="176" height="64" rx="9" class="box"/>
+        <text x="446" y="222" class="t lbl">Fits the ADRs</text>
+        <text x="446" y="242" class="s mut">implement within</text>
+
+        <rect x="624" y="196" width="222" height="64" rx="9" class="dash"/>
+        <text x="640" y="222" class="t acc">✋ Conflicts with an ADR</text>
+        <text x="640" y="242" class="s mut">stop &amp; escalate → architecture-change</text>
+
+        <line x1="700" y1="112" x2="560" y2="196" class="edge" marker-end="url(#ah3)"/>
+        <text x="556" y="150" class="s mut" text-anchor="end">fits →</text>
+        <line x1="716" y1="112" x2="730" y2="196" class="edge-acc" marker-end="url(#ah3A)"/>
+        <text x="742" y="150" class="s acc">conflict</text>
+      </svg>
+    </div>
+    <figcaption>ADRs are immutable once accepted — a change is a <em>new</em> ADR or an amendment, linked to the old one. Together they form a navigable graph of "why", reproducible by <code>git clone</code>.</figcaption>
+  </figure>
+
+  <div class="adrgrid">
+    <div class="fam">
+      <h3>Family A — Android app baseline</h3>
+      <p>Binds every feature at <code>/speckit-plan</code> time (the "proving-ground" app).</p>
+      <ul>
+        <li><span class="id">0003</span><span class="ti">Clean Architecture + MVI</span></li>
+        <li><span class="id">0004</span><span class="ti">Dependency injection with Hilt</span></li>
+        <li><span class="id">0005</span><span class="ti">Persistence: Room + Proto DataStore</span></li>
+        <li><span class="id">0006</span><span class="ti">Networking + JWT auth/refresh</span></li>
+        <li><span class="id">0007</span><span class="ti">Quality gates: detekt + guardrails</span></li>
+        <li><span class="id">0011</span><span class="ti">Visual-regression testing</span><span class="st def">deferred</span></li>
+      </ul>
+    </div>
+    <div class="fam">
+      <h3>Family B — AI-native system &amp; process</h3>
+      <p>Governs the meta-system itself — the neutral core, the loop, observability.</p>
+      <ul>
+        <li><span class="id">0001</span><span class="ti">Neutral core, tools as adapters</span></li>
+        <li><span class="id">0002</span><span class="ti">Spec Kit as the SDD engine</span></li>
+        <li><span class="id">0008</span><span class="ti"><code>methods/</code> + <code>adapters/</code> layout</span></li>
+        <li><span class="id">0009</span><span class="ti">Run modes: human- / ai-paced</span></li>
+        <li><span class="id">0010</span><span class="ti">Automated provenance + metrics</span></li>
+        <li><span class="id">0012</span><span class="ti">LLM runtime observability — adapter-scoped</span></li>
+        <li><span class="id">0013</span><span class="ti">Per-commit token/cost aggregate</span><span class="st pro">proposed</span></li>
+        <li><span class="id">0014</span><span class="ti">Diagnostic telemetry: traces/logs/evals</span><span class="st pro">proposed</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>How decisions connect to the rest of the map.</b> The ADRs are the <em>rules</em> the neutral core (diagram 01) enforces and the loop (diagram 02) obeys: <code>tasks.md</code> names them, the harness runs within them, and any conflict routes to a human gate. That's how "architecture decided, not re-decided" stays true across every spec.
+  </div>
+
+  <footer>
+    Governed by ADR-0001 (neutral core, adapters), ADR-0009 (run modes), ADR-0010 (provenance + metrics),
+    ADR-0012 (LLM runtime observability — adapter-scoped), ADR-0013/0014 (run metrics). See
+    <code>index.md</code> and <code>decisions/</code>.
+  </footer>
+
+</div>
+</body>
+</html>

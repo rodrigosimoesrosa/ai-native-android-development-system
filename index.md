@@ -26,6 +26,9 @@ graph TD
     A9["ADR-0009 · Run modes: human/ai-paced"]
     A10["ADR-0010 · Automated provenance + metrics"]
     A11["ADR-0011 · Visual-regression testing (deferred)"]:::todo
+    A12["ADR-0012 · LLM runtime observability (adapter-scoped)"]
+    A13["ADR-0013 · Per-commit token/cost aggregate (proposed)"]:::todo
+    A14["ADR-0014 · LLM diagnostic telemetry: traces/logs/evals (proposed)"]:::todo
     KG["ADR (future) · Knowledge graph"]:::todo
     MET["methods/ — neutral how"]
     ADP["adapters/ — tool invocation"]
@@ -55,6 +58,15 @@ graph TD
     A10 --> A9
     IDX -.-> A11
     A11 -.-> A7
+    IDX --> A12
+    A12 --> A1
+    A12 --> A10
+    IDX -.-> A13
+    A13 -.-> A12
+    A13 -.-> A10
+    IDX -.-> A14
+    A14 -.-> A12
+    A14 -.-> A13
     A1 --> VIS
     A2 --> A1
     A2 --> VIS
@@ -78,6 +90,7 @@ graph TD
 
 - [Vision & Architecture](docs/00-vision-and-architecture.md) — what this project is and why.
 - [Constitution](docs/constitution.md) — the rules humans and agents build by (v1.1.0).
+- [AI Architecture — Responsibilities Map](docs/ai-architecture-map.html) — visual map: neutral core ↔ adapter boundary, the SDD loop, where run metrics come from, and how `decisions/` (ADRs) are used.
 
 ## Decisions (ADRs)
 
@@ -92,6 +105,9 @@ graph TD
 - [ADR-0009 — Run modes: human-paced / ai-paced](decisions/ADR-0009-run-modes-human-paced-and-ai-paced.md)
 - [ADR-0010 — Automated provenance (commit trailers) + metrics](decisions/ADR-0010-automated-provenance-and-metrics.md)
 - [ADR-0011 — Visual-regression (snapshot) testing](decisions/ADR-0011-visual-regression-testing-deferred.md) — **Deferred** (revisit when ai-paced authors non-trivial Compose UI)
+- [ADR-0012 — LLM runtime observability](decisions/ADR-0012-llm-runtime-observability-adapter-scoped.md) — **adapter-scoped** (token/cost/latency/traces live in adapters, never the neutral core; only git-native aggregates cross back)
+- [ADR-0013 — Per-commit token/cost aggregate](decisions/ADR-0013-per-commit-token-cost-aggregate.md) — **Proposed** (`Provenance-Tokens`/`Provenance-Cost` commit trailers; per-commit not per-file; local ⇒ `Cost: 0USD`, `-` = not measured)
+- [ADR-0014 — LLM diagnostic telemetry (traces/logs/evals)](decisions/ADR-0014-llm-diagnostic-telemetry-traces-logs-evals.md) — **Proposed** (adapter-scoped diagnosis pillars; only content-free aggregates cross to git; prompt/response logging opt-in, never in core). Completes the observability design (0010 process + 0013 cost + 0014 diagnosis)
 
 ## Specs
 
