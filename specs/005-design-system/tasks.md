@@ -79,8 +79,8 @@ and dark, driving `MirabilisTheme`. Every component in later phases depends on t
 - [x] T012 [US2] Create `token/Color.kt` — raw 5 greens + derived 9-step neutral ramp + semantic error/warning/success (internal `Color` constants) per data-model.md (FR-002, FR-003, FR-004)
 - [x] T013 [US2] Create `token/ColorRoles.kt` — `lightColorScheme(...)` + `darkColorScheme(...)` role mapping and light/dark `MirabilisExtraColors` from Color.kt (FR-005; research.md D3/D4) (depends on T012)
 - [x] T014 [US2] Wire real light/dark schemes + extra colors into `theme/MirabilisTheme.kt`, replacing the T009 placeholder (depends on T013)
-- [ ] T015 [P] [US2] Create `catalog/ComponentCatalog.kt` with the **token section** — color-swatch + typography `@Preview` (light + dark) showing every role + on-color label (SC-002, FR-017 partial). This is the single gallery file; US4 (T029) extends it with component sections (no separate swatch file — avoids drift)
-- [ ] T016 [US2] Tune container/on-* tones until ContrastTest + TokenCompletenessTest are GREEN (FR-015, SC-003) (depends on T010, T011, T013)
+- [x] T015 [P] [US2] Create `catalog/ComponentCatalog.kt` with the **token section** — color-swatch + typography `@Preview` (light + dark) showing every role + on-color label (SC-002, FR-017 partial). This is the single gallery file; US4 (T029) extends it with component sections (no separate swatch file — avoids drift)
+- [x] T016 [US2] Tune container/on-* tones until ContrastTest + TokenCompletenessTest are GREEN (FR-015, SC-003) (depends on T010, T011, T013)
 
 **Checkpoint**: token layer complete, both themes, all contrast/completeness tests green.
 
@@ -95,10 +95,10 @@ only design-system tokens (no raw hex/dp).
 
 **Depends on**: Phase 3 tokens (US2) + Phase 2 theme.
 
-- [ ] T017 [P] [US1] Create `component/MirabilisButton.kt` — Primary/Secondary/Text variants, enabled/pressed/focused/disabled (38%/12% alpha tokens), long-label ellipsis; light + dark `@Preview` (FR-008, FR-012, FR-019; contracts §Buttons)
-- [ ] T018 [P] [US1] Create `component/MirabilisText.kt` — bound to typography scale + color roles, respects font scale; light + dark `@Preview` (FR-009, FR-016, FR-019; contracts §Text)
-- [ ] T019 [P] [US1] Create `component/MirabilisTextField.kt` — label/placeholder/helper/error(errorText via `error` role)/filled/focused/disabled; light + dark `@Preview` (FR-010, FR-019; contracts §Text field)
-- [ ] T020 [P] [US1] (optional) `test/.../ButtonStateTest.kt` — instrumented `ui-test-junit4`: disabled button is not clickable (edge case; catalog dep only)
+- [x] T017 [P] [US1] Create `component/MirabilisButton.kt` — Primary/Secondary/Text variants, enabled/pressed/focused/disabled (38%/12% alpha tokens), long-label ellipsis; light + dark `@Preview` (FR-008, FR-012, FR-019; contracts §Buttons)
+- [x] T018 [P] [US1] Create `component/MirabilisText.kt` — bound to typography scale + color roles, respects font scale; light + dark `@Preview` (FR-009, FR-016, FR-019; contracts §Text)
+- [x] T019 [P] [US1] Create `component/MirabilisTextField.kt` — label/placeholder/helper/error(errorText via `error` role)/filled/focused/disabled; light + dark `@Preview` (FR-010, FR-019; contracts §Text field)
+- [x] T020 [P] [US1] (optional) `test/.../ButtonStateTest.kt` — instrumented `ui-test-junit4`: disabled button is not clickable (edge case; catalog dep only)
 
 **Checkpoint**: core components usable and previewable in both themes — MVP design system.
 
@@ -113,14 +113,14 @@ from tokens. Independent of US1 (different files).
 
 **Depends on**: Phase 3 tokens + Phase 2 theme (not on US1).
 
-- [ ] T021 [P] [US3] Create `component/MirabilisFab.kt` — Small/Regular/Extended, enabled/pressed/disabled; light + dark `@Preview` (FR-011, FR-019; contracts §FAB)
-- [ ] T022 [P] [US3] Create `component/extended/MirabilisSwitch.kt` — on/off/disabled + previews (FR-013)
-- [ ] T023 [P] [US3] Create `component/extended/MirabilisCheckbox.kt` — checked/unchecked/disabled + previews (FR-013)
-- [ ] T024 [P] [US3] Create `component/extended/MirabilisRadioButton.kt` — selected/unselected/disabled + previews (FR-013)
-- [ ] T025 [P] [US3] Create `component/extended/MirabilisCard.kt` — elevated/outlined + previews (FR-013)
-- [ ] T026 [P] [US3] Create `component/extended/MirabilisChip.kt` — assist/filter, enabled/selected/disabled + previews (FR-013)
-- [ ] T027 [P] [US3] Create `component/extended/MirabilisTopAppBar.kt` — title + nav/actions slots + previews (FR-013)
-- [ ] T028 [P] [US3] Create `component/extended/MirabilisDialog.kt` — title/text/confirm/dismiss + preview (FR-013)
+- [x] T021 [P] [US3] Create `component/MirabilisFab.kt` — Small/Regular/Extended, enabled/pressed/disabled; light + dark `@Preview` (FR-011, FR-019; contracts §FAB)
+- [x] T022 [P] [US3] Create `component/extended/MirabilisSwitch.kt` — on/off/disabled + previews (FR-013)
+- [x] T023 [P] [US3] Create `component/extended/MirabilisCheckbox.kt` — checked/unchecked/disabled + previews (FR-013)
+- [x] T024 [P] [US3] Create `component/extended/MirabilisRadioButton.kt` — selected/unselected/disabled + previews (FR-013)
+- [x] T025 [P] [US3] Create `component/extended/MirabilisCard.kt` — elevated/outlined + previews (FR-013)
+- [x] T026 [P] [US3] Create `component/extended/MirabilisChip.kt` — assist/filter, enabled/selected/disabled + previews (FR-013)
+- [x] T027 [P] [US3] Create `component/extended/MirabilisTopAppBar.kt` — title + nav/actions slots + previews (FR-013)
+- [x] T028 [P] [US3] Create `component/extended/MirabilisDialog.kt` — title/text/confirm/dismiss + preview (FR-013)
 
 **Checkpoint**: full component catalog available, each previewable in both themes.
 
@@ -135,7 +135,7 @@ at max system font scale nothing clips.
 
 **Depends on**: components (US1, US3) + tokens (US2).
 
-- [ ] T029 [US4] Extend `catalog/ComponentCatalog.kt` (from T015) with **all component sections** in every state, built ONLY from design-system APIs; update light + dark `@Preview` (FR-017, SC-002, SC-004, SC-006) — same file as T015, so sequential (not [P])
+- [x] T029 [US4] Extend `catalog/ComponentCatalog.kt` (from T015) with **all component sections** in every state, built ONLY from design-system APIs; update light + dark `@Preview` (FR-017, SC-002, SC-004, SC-006) — same file as T015, so sequential (not [P])
 
 **Checkpoint**: gallery renders the whole system in both themes.
 

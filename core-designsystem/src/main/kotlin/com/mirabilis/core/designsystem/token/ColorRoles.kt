@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import com.mirabilis.core.designsystem.theme.MirabilisExtraColors
 
+@Suppress("LongParameterList")
 fun lightColorScheme(
     primary: Color = rawOliveLeaf,
     onPrimary: Color = semanticOnError,
@@ -75,6 +76,7 @@ fun lightColorScheme(
     inversePrimary = inversePrimary,
 )
 
+@Suppress("LongParameterList")
 fun darkColorScheme(
     primary: Color = rawBrightFern,
     onPrimary: Color = Color(0xFF181E12),

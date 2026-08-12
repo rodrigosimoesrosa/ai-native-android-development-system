@@ -38,8 +38,8 @@ val semanticOnSuccessDark = Color(0xFF11270B)
 
 /* ── Neutral ramp — light theme (derived — FR-003) ─────────────────── */
 
-val neutralBg = Color(0xFFFBFDF6)       // bg / surface: green-tinted white
-val neutralText = Color(0xFF11270B)      // onBg / onSurface text
+val neutralBg = Color(0xFFFBFDF6) // bg / surface: green-tinted white
+val neutralText = Color(0xFF11270B) // onBg / onSurface text
 val neutralSurfaceVariant = Color(0xFFE0E5D6)
 val neutralOnSurfaceVariant = Color(0xFF42493B)
 val neutralOutline = Color(0xFF72796A)
@@ -47,8 +47,8 @@ val neutralOutlineVariant = Color(0xFFC2C9B8)
 
 /* ── Neutral ramp — dark theme (derived — FR-003) ──────────────────── */
 
-val neutralBgDark = Color(0xFF0E1A08)    // bg / surface: near-Evergreen
-val neutralTextDark = Color(0xFFE3E8DC)  // onBg / onSurface text
+val neutralBgDark = Color(0xFF0E1A08) // bg / surface: near-Evergreen
+val neutralTextDark = Color(0xFFE3E8DC) // onBg / onSurface text
 val neutralSurfaceVariantDark = Color(0xFF42493B)
 val neutralOnSurfaceVariantDark = Color(0xFFC2C9B8)
 val neutralOutlineDark = Color(0xFF8C9382)

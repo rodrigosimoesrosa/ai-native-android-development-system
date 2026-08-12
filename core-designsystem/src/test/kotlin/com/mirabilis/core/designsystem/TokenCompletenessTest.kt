@@ -1,12 +1,11 @@
 package com.mirabilis.core.designsystem
 
-import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
-import com.mirabilis.core.designsystem.token.darkColorScheme
-import com.mirabilis.core.designsystem.token.lightColorScheme
-import com.mirabilis.core.designsystem.token.darkExtraColors
-import com.mirabilis.core.designsystem.token.lightExtraColors
 import com.mirabilis.core.designsystem.token.createMirabilisTypography
+import com.mirabilis.core.designsystem.token.darkColorScheme
+import com.mirabilis.core.designsystem.token.darkExtraColors
+import com.mirabilis.core.designsystem.token.lightColorScheme
+import com.mirabilis.core.designsystem.token.lightExtraColors
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -88,14 +87,14 @@ class TokenCompletenessTest {
 
         assertTrue(
             "Extra colors must not be Color.Unspecified",
-            lightExtras.warning != Color.Unspecified
-                && lightExtras.onWarning != Color.Unspecified
-                && lightExtras.success != Color.Unspecified
-                && lightExtras.onSuccess != Color.Unspecified
-                && darkExtras.warning != Color.Unspecified
-                && darkExtras.onWarning != Color.Unspecified
-                && darkExtras.success != Color.Unspecified
-                && darkExtras.onSuccess != Color.Unspecified,
+            lightExtras.warning != Color.Unspecified &&
+                lightExtras.onWarning != Color.Unspecified &&
+                lightExtras.success != Color.Unspecified &&
+                lightExtras.onSuccess != Color.Unspecified &&
+                darkExtras.warning != Color.Unspecified &&
+                darkExtras.onWarning != Color.Unspecified &&
+                darkExtras.success != Color.Unspecified &&
+                darkExtras.onSuccess != Color.Unspecified,
         )
     }
 
