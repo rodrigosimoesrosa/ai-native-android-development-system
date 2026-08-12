@@ -10,6 +10,20 @@ nothing here is optional context.
 - [`docs/00-vision-and-architecture.md`](docs/00-vision-and-architecture.md) — what this project is and why.
 - [`docs/constitution.md`](docs/constitution.md) — **the rules humans and agents build by** (v1.1.0). Non-negotiable.
 
+## Core principles (the constitution, condensed — canonical: `.specify/memory/constitution.md`)
+
+- **I. Specs are the source of truth (NON-NEGOTIABLE).** No implementation without an approved
+  spec. Code implements a spec, tests verify it; if they disagree, one is a bug — fix it.
+- **II. Small, verifiable units with explicit boundaries (SOLID).** Many small reviewable diffs,
+  each mapped to a scoped spec. **Dependency Inversion** — arrows point inward toward the domain
+  (ADR-0003).
+- **III. Tests as executable specification (NON-NEGOTIABLE).** Acceptance criteria as tests,
+  test-first. "Done" = the verification gate passes. Green is the default; red is broken work.
+- **IV. Knowledge in git, with provenance.** Specs, ADRs, contracts, conventions are versioned,
+  cross-linked files reproducible by `git clone`. Every change traces to its spec + decision record.
+- **V. Neutral core, tools as pluggable adapters.** Project intelligence lives in tool-agnostic
+  files (ADR-0001); AI tooling is a thin, replaceable adapter with no domain logic inside it.
+
 ## Architecture is decided, not re-decided per feature
 
 Implement **within** the recorded decisions in [`decisions/`](decisions/). If a task conflicts
@@ -38,6 +52,8 @@ with an ADR, **stop and escalate** — do not invent a new architectural decisio
 - [`scripts/ai-paced-run.sh`](scripts/ai-paced-run.sh) + [`adapters/`](adapters/README.md) — the tool-neutral ai-paced harness with a **pluggable brain**: [claude-code](adapters/claude-code/README.md) and [opencode](adapters/opencode/README.md) (a **local** LLM) are **both active** — opencode drove spec `004` end-to-end.
 - [`methods/write-adr.md`](methods/write-adr.md) — how to record a decision.
 - [`methods/record-provenance.md`](methods/record-provenance.md) — provenance trailers (Principle IV / ADR-0010).
+- **SDD-loop commands** exist for both brains under the same `/speckit-*` names: Claude Code skills
+  in [`.claude/skills/`](.claude/skills/) and opencode commands in [`.opencode/command/`](.opencode/command/).
 
 ## Human gates (never crossed autonomously)
 

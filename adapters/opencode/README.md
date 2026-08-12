@@ -1,9 +1,10 @@
 # adapters/opencode/ — ai-paced with local models
 
-**Status:** active for the **ai-paced brain** (running a local LLM); the full SDD-loop commands remain
-a v3 item. This is the ADR-0001 portability guarantee **proven by execution**: the same harness
-(`scripts/ai-paced-run.sh`), gate, escalation, and provenance run with a *different brain* — only this
-directory is authored (ADR-0008, ADR-0009).
+**Status:** active for the **ai-paced brain** (running a local LLM) **and** the interactive SDD-loop
+commands (`/speckit-*`) — see [SDD-loop commands](#sdd-loop-commands-interactive) below. This is the
+ADR-0001 portability guarantee **proven by execution**: the same harness (`scripts/ai-paced-run.sh`),
+gate, escalation, and provenance run with a *different brain* — only this directory (and the neutral
+`.opencode/` command wrappers) is authored (ADR-0008, ADR-0009).
 
 ## What this gives you
 
@@ -33,6 +34,27 @@ PROVIDER=lmstudio MODEL=qwen2.5-coder    bash adapters/opencode/run-ai-paced.sh
 [`run-ai-paced.sh`](run-ai-paced.sh) checks the tool + server, points opencode at the local endpoint,
 sets `AI_PACED_AGENT_CMD='opencode run --model <provider>/<model> "…"'` (+ provenance), and hands off
 to the neutral harness [`scripts/ai-paced-run.sh`](../../scripts/ai-paced-run.sh).
+
+## SDD-loop commands (interactive)
+
+Beyond the autonomous brain, opencode can drive the Spec Kit loop **interactively** — the same
+`/speckit-*` commands Claude Code exposes. They live in [`.opencode/command/`](../../.opencode/command/),
+one file per command, and each **references** the authoritative skill in
+`.claude/skills/speckit-*/SKILL.md` (single source of truth — no duplication, no drift). Repo context
+comes from [`AGENTS.md`](../../AGENTS.md), which points opencode at the same `CLAUDE.md` guardrails
+Claude Code reads.
+
+```bash
+opencode                  # open the TUI at the repo root
+/speckit-specify  <desc>  # create/update a feature spec
+/speckit-plan             # generate the plan
+/speckit-tasks            # break down into tasks.md
+/speckit-implement        # execute the approved tasks.md
+```
+
+Available: `specify`, `plan`, `tasks`, `implement`, `analyze`, `clarify`, `checklist`,
+`constitution`, `converge`, `taskstoissues`. The four human gates still apply — opencode escalates
+them exactly as the harness does.
 
 ## Honest limits
 
