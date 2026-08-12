@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "mirabilis"
 
 include(":core")
+include(":core-designsystem")
 include(":core-ui")
 include(":domain")
 include(":data")
