@@ -143,11 +143,11 @@ at max system font scale nothing clips.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T030 [P] Run `./gradlew :core-designsystem:detekt` and resolve findings (ADR-0007)
-- [ ] T031 [P] Verify every component file has BOTH a light and a dark `@Preview` (SC-007) — grep `@Preview` per component file in `core-designsystem/src/main`
-- [ ] T032 Run [quickstart.md](quickstart.md) validation: `:core-designsystem:assemble` + `:test` + `:detekt` all green; confirm no raw hex/dp literals inside components (FR-012, SC-001)
-- [ ] T033 Update [index.md](../../index.md) Knowledge Map with the design-system module; record provenance trailers on commits (spec 005, ADR-0010, Principle IV)
-- [ ] T034 [P] Add KDoc to each component in `core-designsystem/src/main/kotlin/com/mirabilis/core/designsystem/component/**` documenting its available variants and states, per [contracts/ui-components.md](contracts/ui-components.md) (FR-014)
+- [x] T030 [P] Run `./gradlew :core-designsystem:detekt` and resolve findings (ADR-0007)
+- [x] T031 [P] Verify every component file has BOTH a light and a dark `@Preview` (SC-007) — grep `@Preview` per component file in `core-designsystem/src/main`
+- [x] T032 Run [quickstart.md](quickstart.md) validation: `:core-designsystem:assemble` + `:test` + `:detekt` all green; confirm no raw hex/dp literals inside components (FR-012, SC-001)
+- [x] T033 Update [index.md](../../index.md) Knowledge Map with the design-system module; record provenance trailers on commits (spec 005, ADR-0010, Principle IV)
+- [x] T034 [P] Add KDoc to each component in `core-designsystem/src/main/kotlin/com/mirabilis/core/designsystem/component/**` documenting its available variants and states, per [contracts/ui-components.md](contracts/ui-components.md) (FR-014)
 
 ---
 

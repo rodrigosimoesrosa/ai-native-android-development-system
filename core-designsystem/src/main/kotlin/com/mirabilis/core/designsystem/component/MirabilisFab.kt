@@ -18,13 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.mirabilis.core.designsystem.theme.MirabilisTheme
 import com.mirabilis.core.designsystem.token.spacingSm
 
-/** Size variants for the floating action button. */
-@Suppress("MatchingDeclarationName")
-enum class MirabilisFabSize {
-    Small,
-    Regular,
-}
-
 /**
  * A branded floating action button supporting Small, Regular, and Extended sizes.
  *

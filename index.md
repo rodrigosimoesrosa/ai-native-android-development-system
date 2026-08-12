@@ -30,6 +30,7 @@ graph TD
     A13["ADR-0013 · Per-commit token/cost aggregate (proposed)"]:::todo
     A14["ADR-0014 · LLM diagnostic telemetry: traces/logs/evals (proposed)"]:::todo
     KG["ADR (future) · Knowledge graph"]:::todo
+    SP5["Spec 005 · Design System"]:::done
     MET["methods/ — neutral how"]
     ADP["adapters/ — tool invocation"]
 
@@ -82,6 +83,7 @@ graph TD
     A1 --> MET
     A1 --> ADP
     A1 -.-> KG
+    IDX --> SP5
 
     classDef todo stroke-dasharray: 5 5,opacity:0.55;
 ```
@@ -118,6 +120,7 @@ Transient work units that travel the loop; the durable decisions they inherit li
 - [002 — User Profile](specs/002-user-profile/spec.md)
 - [003 — App Navigation Shell](specs/003-navigation/spec.md)
 - [004 — Confirm Sign-Out](specs/004-confirm-sign-out/spec.md) — implemented **ai-paced by opencode** (local LLM)
+- [005 — Design System](specs/005-design-system/spec.md) — implemented **ai-paced by opencode** (local LLM); `core-designsystem` module with tokens, theme, components, and gallery
 
 ## Method layer (neutral core vs. adapters)
 

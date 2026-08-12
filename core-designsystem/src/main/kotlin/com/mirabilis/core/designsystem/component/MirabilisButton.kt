@@ -22,14 +22,6 @@ import com.mirabilis.core.designsystem.theme.MirabilisTheme
 import com.mirabilis.core.designsystem.token.spacingSm
 import com.mirabilis.core.designsystem.token.spacingXl
 
-/** Button emphasis variants for the design system. */
-@Suppress("MatchingDeclarationName")
-enum class MirabilisButtonStyle {
-    Primary,
-    Secondary,
-    Text,
-}
-
 /**
  * A branded button component that consumes design-system tokens exclusively.
  *
