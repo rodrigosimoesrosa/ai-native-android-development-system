@@ -12,6 +12,9 @@
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)" || exit 2
 
+# Neutral run-metrics helper (spec 006): the harness writes run-health to the session sidecar on exit.
+. scripts/lib/run-metrics.sh 2>/dev/null || true
+
 POLICY="run-modes.yml"
 max_iter="$(awk '/ai-paced:/{f=1} f&&/max_fix_iterations:/{print $2; exit}' "$POLICY" 2>/dev/null)"
 max_iter="${max_iter:-5}"
@@ -32,7 +35,28 @@ if git status --porcelain | grep -qE '(libs\.versions\.toml|build\.gradle)'; the
   exit 3
 fi
 
-GATE_LOG="$(mktemp)"; trap 'rm -f "$GATE_LOG"' EXIT
+GATE_LOG="$(mktemp)"
+run_start_ts="$(date +%s)"
+gate_fail_count=0
+_ai_paced_on_exit() {
+  _code=$?
+  rm -f "$GATE_LOG"
+  # Run-health → run-metrics sidecar (spec 006; ADR-0014 §3). Neutral, content-free, never blocks.
+  if command -v run_metrics_set >/dev/null 2>&1; then
+    _end="$(date +%s)"
+    run_metrics_set PROVENANCE_LATENCY_MS "$(( (_end - run_start_ts) * 1000 ))" 2>/dev/null || true
+    run_metrics_set PROVENANCE_RETRIES "${total_iter:-0}" 2>/dev/null || true
+    run_metrics_set PROVENANCE_ERRORS "${gate_fail_count:-0}" 2>/dev/null || true
+    case "$_code" in
+      0)   _out=ok ;;
+      3|4) _out=cancelled ;;   # escalated to a human / no tasks — not a failure of the run itself
+      *)   _out=error ;;
+    esac
+    run_metrics_set PROVENANCE_OUTCOME "$_out" 2>/dev/null || true
+  fi
+  exit "$_code"
+}
+trap _ai_paced_on_exit EXIT
 
 run_gate() { # shared verification gate (methods/verify-change.md): guardrails + fast JVM tests
   : > "$GATE_LOG"
@@ -55,6 +79,7 @@ total_iter=0
 max_total=$(( 200 ))
 while : ; do
   gate_ok=1; run_gate || gate_ok=0
+  [ "$gate_ok" -eq 0 ] && gate_fail_count=$((gate_fail_count + 1))
   rem="$(remaining)"; rem="${rem:-0}"
 
   if [ "$rem" -eq 0 ] && [ "$gate_ok" -eq 1 ]; then

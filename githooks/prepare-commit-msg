@@ -38,4 +38,26 @@ model="${PROVENANCE_MODEL:--}"
   printf 'Provenance-Model: %s\n'  "$model"
 } >> "$msg_file"
 
+# Run metrics (spec 006; ADR-0013 + ADR-0014 §3): content-free tokens + run-health from the session
+# sidecar (or same-named env vars). Present keys are stamped; unset keys are omitted (never faked);
+# then the sidecar is consumed so one session maps to exactly one commit. Best-effort — never blocks.
+lib="$(CDPATH= cd "$(dirname "$0")/.." 2>/dev/null && pwd)/scripts/lib/run-metrics.sh"
+if [ -f "$lib" ]; then
+  # shellcheck source=/dev/null
+  . "$lib"
+  for _k in $RUN_METRICS_KEYS; do
+    _v="$(run_metrics_get "$_k")"
+    [ -n "$_v" ] || continue
+    run_metrics_valid "$_k" "$_v" || continue
+    case "$_k" in
+      PROVENANCE_TOKENS)     printf 'Provenance-Tokens: %s\n'     "$_v" >> "$msg_file" ;;
+      PROVENANCE_LATENCY_MS) printf 'Provenance-Latency-Ms: %s\n' "$_v" >> "$msg_file" ;;
+      PROVENANCE_RETRIES)    printf 'Provenance-Retries: %s\n'    "$_v" >> "$msg_file" ;;
+      PROVENANCE_ERRORS)     printf 'Provenance-Errors: %s\n'     "$_v" >> "$msg_file" ;;
+      PROVENANCE_OUTCOME)    printf 'Provenance-Outcome: %s\n'    "$_v" >> "$msg_file" ;;
+    esac
+  done
+  run_metrics_consume
+fi
+
 exit 0

@@ -25,6 +25,10 @@ with an ADR, **stop and escalate** — do not invent a new architectural decisio
 - [ADR-0008](decisions/ADR-0008-methods-and-adapters-layout.md) — `methods/` + `adapters/` layout.
 - [ADR-0009](decisions/ADR-0009-run-modes-human-paced-and-ai-paced.md) — Run modes: human-paced / ai-paced.
 - [ADR-0010](decisions/ADR-0010-automated-provenance-and-metrics.md) — Automated provenance (commit trailers) + metrics.
+- [ADR-0011](decisions/ADR-0011-visual-regression-testing-deferred.md) — Visual-regression (snapshot) testing: **Deferred**.
+- [ADR-0012](decisions/ADR-0012-llm-runtime-observability-adapter-scoped.md) — LLM runtime observability (token/cost/latency/traces): **adapter-scoped**, never in the neutral core.
+- [ADR-0013](decisions/ADR-0013-per-commit-token-cost-aggregate.md) — Per-commit token/cost aggregate via provenance trailers: **Proposed** (per-commit, not per-file).
+- [ADR-0014](decisions/ADR-0014-llm-diagnostic-telemetry-traces-logs-evals.md) — LLM diagnostic telemetry (traces/logs/evals): **Proposed**, adapter-scoped; content never crosses to git.
 
 ## How the work is done (the neutral "how")
 

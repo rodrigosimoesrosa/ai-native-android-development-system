@@ -64,7 +64,11 @@ PROMPT='You are the autonomous executor of an approved plan. Implement the next 
 # --auto: auto-approve tool permissions. REQUIRED for headless `opencode run` — without it opencode
 # auto-rejects every file read/edit and the executor makes zero progress. Safe here: the brain is
 # scoped to this repo/branch and every change passes the gate + human merge review (run-modes.yml).
-export AI_PACED_AGENT_CMD="opencode run --auto --model '$PROVIDER/$MODEL' \"$PROMPT\""
+# Token capture (spec 006 / ADR-0013): accumulate token usage into the run-metrics sidecar.
+# Best-effort — opencode's token exposure is runtime-dependent; when it does not report usage, tokens
+# are simply omitted (never faked). This is the only tool-specific piece; the neutral core does the rest.
+BRAIN="opencode run --auto --model '$PROVIDER/$MODEL' \"$PROMPT\""
+export AI_PACED_AGENT_CMD='. scripts/lib/run-metrics.sh 2>/dev/null || true; __o="$(mktemp)"; '"$BRAIN"' | tee "$__o"; __in="$(grep -oE "\"input_tokens\"[ :]*[0-9]+" "$__o" | grep -oE "[0-9]+" | head -1)"; __out="$(grep -oE "\"output_tokens\"[ :]*[0-9]+" "$__o" | grep -oE "[0-9]+" | head -1)"; __sum=$(( ${__in:-0} + ${__out:-0} )); [ "${__sum:-0}" -gt 0 ] && run_metrics_add_tokens "$__sum"; rm -f "$__o"'
 
 echo "▶ launching ai-paced — brain: opencode ($PROVIDER/$MODEL)"
 exec bash scripts/ai-paced-run.sh
