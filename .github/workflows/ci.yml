@@ -110,3 +110,12 @@ jobs:
         with:
           name: process-metrics
           path: metrics.txt
+
+  scripts-tests:
+    # Dependency-free shell tests for the meta-system tooling (spec 006 — run metrics hook/lib/metrics).
+    # git + bash only; each test runs in its own throwaway repo. No Gradle, no build deps.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shell test suite
+        run: bash scripts/tests/run.sh
