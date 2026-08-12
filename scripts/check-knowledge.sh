@@ -39,7 +39,7 @@ while IFS= read -r md; do
   done < <(grep -oE '\]\([^)]+\)' "$md" | sed -E 's/^\]\(//; s/\)$//')
 done < <(find . -name '*.md' \
   -not -path './.git/*' -not -path '*/build/*' \
-  -not -path './.claude/*' -not -path './.specify/*' \
+  -not -path './.claude/*' -not -path './.specify/*' -not -path './.opencode/*' \
   -not -path './mvi-sample/*' -not -path './.obsidian/*')
 
 if [ -s "$broken" ]; then cat "$broken"; fail=1; fi
