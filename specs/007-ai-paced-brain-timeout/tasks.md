@@ -30,7 +30,7 @@ and escalate):
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 [P] Create `scripts/tests/fixtures/fake-brain.sh` — a parametrized fake brain via `MODE`: `finish` (prints, exit 0), `stall` (prints once then sleeps forever), `runaway` (prints every 1s forever), `fail` (prints, exit 3); spawns a child sleep so process-group kill is exercised (quickstart.md; contracts §3)
+- [x] T001 [P] Create `scripts/tests/fixtures/fake-brain.sh` — a parametrized fake brain via `MODE`: `finish` (prints, exit 0), `stall` (prints once then sleeps forever), `runaway` (prints every 1s forever), `fail` (prints, exit 3); spawns a child sleep so process-group kill is exercised (quickstart.md; contracts §3)
 
 ---
 
@@ -38,7 +38,7 @@ and escalate):
 
 **⚠️ CRITICAL**: blocks every user story — the neutral defaults every threshold-resolution path reads.
 
-- [ ] T002 Add neutral defaults to `run-modes.yml` under `modes.ai-paced`: `brain_idle_timeout_s: 300` and `brain_hardcap_s: 1800`, parseable by the same `awk` approach used for `max_fix_iterations` (contracts §2; data-model resolution order)
+- [x] T002 Add neutral defaults to `run-modes.yml` under `modes.ai-paced`: `brain_idle_timeout_s: 300` and `brain_hardcap_s: 1800`, parseable by the same `awk` approach used for `max_fix_iterations` (contracts §2; data-model resolution order)
 
 **Checkpoint**: `run-modes.yml` carries the neutral defaults; fake brain available for tests.
 
@@ -54,16 +54,16 @@ via on_failure within a bounded multiple of the thresholds, never blocks.
 
 ### Tests (write FIRST, must FAIL) ⚠️
 
-- [ ] T003 [P] [US1] `scripts/tests/test_brain_idle_timeout.sh` — `stall` brain with idle=2s is killed at ~2s, wrapper returns 124, and NO child sleep survives (FR-001, FR-010, SC-001, SC-006)
-- [ ] T004 [P] [US1] `scripts/tests/test_brain_hardcap.sh` — `runaway` brain with hardcap=4s is killed at ~4s, wrapper returns 124 (FR-002)
-- [ ] T005 [US1] `scripts/tests/test_harness_no_hang.sh` — integration: `ai-paced-run.sh` with a one-line `tasks.md`, a `stall` brain, `AI_PACED_BRAIN_IDLE_TIMEOUT=2`/`HARDCAP=6`, wrapped in an outer `timeout 60`; assert the harness stops itself (on_failure) and the outer `timeout` is NOT what killed it (SC-001)
+- [x] T003 [P] [US1] `scripts/tests/test_brain_idle_timeout.sh` — `stall` brain with idle=2s is killed at ~2s, wrapper returns 124, and NO child sleep survives (FR-001, FR-010, SC-001, SC-006)
+- [x] T004 [P] [US1] `scripts/tests/test_brain_hardcap.sh` — `runaway` brain with hardcap=4s is killed at ~4s, wrapper returns 124 (FR-002)
+- [x] T005 [US1] `scripts/tests/test_harness_no_hang.sh` — integration: `ai-paced-run.sh` with a one-line `tasks.md`, a `stall` brain, `AI_PACED_BRAIN_IDLE_TIMEOUT=2`/`HARDCAP=6`, wrapped in an outer `timeout 60`; assert the harness stops itself (on_failure) and the outer `timeout` is NOT what killed it (SC-001)
 
 ### Implementation
 
-- [ ] T006 [US1] Create `scripts/lib/brain-watchdog.sh` with `run_brain_with_liveness <idle> <hardcap> <cmd...>`: run the cmd in its own process group, tee stdout through unchanged, pure-bash idle watchdog (probe-and-pick `stat -f %m` vs `stat -c %Y`), hard-cap via `timeout(1)` when present else a bash-alarm fallback, kill the whole process group (TERM then KILL) on either limit → return 124 (FR-001, FR-002, FR-010; research D1/D2/D6; contracts §3)
-- [ ] T007 [US1] Wire into `scripts/ai-paced-run.sh`: replace the direct `bash -c "$AI_PACED_AGENT_CMD"` (~line 110) with `run_brain_with_liveness "$idle" "$hardcap" bash -c "$AI_PACED_AGENT_CMD"`; on return 124 log the stall and `continue` (so it counts as a failed `fix_iter` attempt) (FR-003; contracts §4)
-- [ ] T008 [US1] In `scripts/ai-paced-run.sh`, resolve `idle`/`hardcap` in order env → `run-modes.yml` → hard floor (300/1800); ignore non-integer/≤0 values (fall through, never abort) and raise `hardcap` to `idle` if `hardcap < idle` (FR-004, FR-005; data-model validation)
-- [ ] T009 [US1] Tune the wrapper until T003–T005 are GREEN; confirm zero orphaned processes after a kill (SC-006)
+- [x] T006 [US1] Create `scripts/lib/brain-watchdog.sh` with `run_brain_with_liveness <idle> <hardcap> <cmd...>`: run the cmd in its own process group, tee stdout through unchanged, pure-bash idle watchdog (probe-and-pick `stat -f %m` vs `stat -c %Y`), hard-cap via `timeout(1)` when present else a bash-alarm fallback, kill the whole process group (TERM then KILL) on either limit → return 124 (FR-001, FR-002, FR-010; research D1/D2/D6; contracts §3)
+- [x] T007 [US1] Wire into `scripts/ai-paced-run.sh`: replace the direct `bash -c "$AI_PACED_AGENT_CMD"` (~line 110) with `run_brain_with_liveness "$idle" "$hardcap" bash -c "$AI_PACED_AGENT_CMD"`; on return 124 log the stall and `continue` (so it counts as a failed `fix_iter` attempt) (FR-003; contracts §4)
+- [x] T008 [US1] In `scripts/ai-paced-run.sh`, resolve `idle`/`hardcap` in order env → `run-modes.yml` → hard floor (300/1800); ignore non-integer/≤0 values (fall through, never abort) and raise `hardcap` to `idle` if `hardcap < idle` (FR-004, FR-005; data-model validation)
+- [x] T009 [US1] Tune the wrapper until T003–T005 are GREEN; confirm zero orphaned processes after a kill (SC-006)
 
 **Checkpoint**: MVP — the harness provably cannot hang; a stalled brain is bounded and reported.
 
@@ -81,13 +81,13 @@ killed; switching adapters changes the effective thresholds with no edit to `ai-
 
 ### Tests (write FIRST, must FAIL) ⚠️
 
-- [ ] T010 [P] [US2] `scripts/tests/test_brain_healthy.sh` — (a) `finish` brain returns 0 with no kill and no measurable added latency vs running it directly (SC-003); (b) a slow brain printing every `idle-1`s over several intervals is never killed (SC-002)
+- [x] T010 [P] [US2] `scripts/tests/test_brain_healthy.sh` — (a) `finish` brain returns 0 with no kill and no measurable added latency vs running it directly (SC-003); (b) a slow brain printing every `idle-1`s over several intervals is never killed (SC-002)
 
 ### Implementation
 
-- [ ] T011 [P] [US2] Export tight thresholds in `adapters/claude-code/run-ai-paced.sh`: `AI_PACED_BRAIN_IDLE_TIMEOUT=120`, `AI_PACED_BRAIN_HARDCAP=900` (cloud/fast) (FR-004; research D3)
-- [ ] T012 [P] [US2] Export loose thresholds in `adapters/opencode/run-ai-paced.sh`: `AI_PACED_BRAIN_IDLE_TIMEOUT=420`, `AI_PACED_BRAIN_HARDCAP=3600` (local/slow) (FR-004; research D3)
-- [ ] T013 [US2] Verify resolution: adapter env overrides the `run-modes.yml` default, and with no adapter value the default still bounds the run — with NO change to `ai-paced-run.sh` beyond reading env (SC-004); make T010 GREEN
+- [x] T011 [P] [US2] Export tight thresholds in `adapters/claude-code/run-ai-paced.sh`: `AI_PACED_BRAIN_IDLE_TIMEOUT=120`, `AI_PACED_BRAIN_HARDCAP=900` (cloud/fast) (FR-004; research D3)
+- [x] T012 [P] [US2] Export loose thresholds in `adapters/opencode/run-ai-paced.sh`: `AI_PACED_BRAIN_IDLE_TIMEOUT=420`, `AI_PACED_BRAIN_HARDCAP=3600` (local/slow) (FR-004; research D3)
+- [x] T013 [US2] Verify resolution: adapter env overrides the `run-modes.yml` default, and with no adapter value the default still bounds the run — with NO change to `ai-paced-run.sh` beyond reading env (SC-004); make T010 GREEN
 
 **Checkpoint**: healthy slow brains run to completion; thresholds are adapter-scoped.
 
@@ -104,13 +104,13 @@ commit and `metrics.sh` counts it distinctly.
 
 ### Tests (write FIRST, must FAIL) ⚠️
 
-- [ ] T014 [P] [US3] `scripts/tests/test_timeout_outcome.sh` — a stall-terminated harness run sets `PROVENANCE_OUTCOME=timeout` in the sidecar, and `scripts/metrics.sh` reports it under a distinct label (not folded into `error`) (FR-007, SC-005)
+- [x] T014 [P] [US3] `scripts/tests/test_timeout_outcome.sh` — a stall-terminated harness run sets `PROVENANCE_OUTCOME=timeout` in the sidecar, and `scripts/metrics.sh` reports it under a distinct label (not folded into `error`) (FR-007, SC-005)
 
 ### Implementation
 
-- [ ] T015 [US3] Add `timeout` to the valid `PROVENANCE_OUTCOME` set in `scripts/lib/run-metrics.sh` (`run_metrics_valid`) (FR-007; data-model outcome table)
-- [ ] T016 [US3] In the `scripts/ai-paced-run.sh` exit handler, set `PROVENANCE_OUTCOME=timeout` when the stop was stall-caused (hard-cap hit or idle retries exhausted), distinct from the `error` path (FR-007; contracts §4)
-- [ ] T017 [US3] Aggregate/label `timeout` distinctly in `scripts/metrics.sh` (research D5); make T014 GREEN
+- [x] T015 [US3] Add `timeout` to the valid `PROVENANCE_OUTCOME` set in `scripts/lib/run-metrics.sh` (`run_metrics_valid`) (FR-007; data-model outcome table)
+- [x] T016 [US3] In the `scripts/ai-paced-run.sh` exit handler, set `PROVENANCE_OUTCOME=timeout` when the stop was stall-caused (hard-cap hit or idle retries exhausted), distinct from the `error` path (FR-007; contracts §4)
+- [x] T017 [US3] Aggregate/label `timeout` distinctly in `scripts/metrics.sh` (research D5); make T014 GREEN
 
 **Checkpoint**: run-health telemetry distinguishes "brain stopped responding" from "brain errored".
 
@@ -118,10 +118,10 @@ commit and `metrics.sh` counts it distinctly.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T018 [P] Portability: run all `scripts/tests/test_brain_*.sh` on macOS (bash 3.2) and Linux; confirm the pure-bash watchdog + `timeout(1)`/bash-fallback hard-cap give identical PASS (SC-004; research D2)
-- [ ] T019 [P] Run [quickstart.md](quickstart.md) end-to-end; confirm the integration run stops on its own (outer `timeout` untriggered) and a healthy run shows no added latency (SC-002, SC-003)
-- [ ] T020 Update the `modes.ai-paced` comments in `run-modes.yml` and record provenance trailers on commits (spec 007, ADR-0010, Principle IV)
-- [ ] T021 **ESCALATE (human gate)**: decide the `timeout` outcome's ADR home — amend [ADR-0014](../../decisions/ADR-0014-llm-diagnostic-telemetry-traces-logs-evals.md) or write a new ADR. Do NOT self-approve (Principle IV / governance). Blocks merge, not the code.
+- [x] T018 [P] Portability: run all `scripts/tests/test_brain_*.sh` on macOS (bash 3.2) and Linux; confirm the pure-bash watchdog + `timeout(1)`/bash-fallback hard-cap give identical PASS (SC-004; research D2)
+- [x] T019 [P] Run [quickstart.md](quickstart.md) end-to-end; confirm the integration run stops on its own (outer `timeout` untriggered) and a healthy run shows no added latency (SC-002, SC-003)
+- [x] T020 Update the `modes.ai-paced` comments in `run-modes.yml` and record provenance trailers on commits (spec 007, ADR-0010, Principle IV)
+- [x] T021 **ESCALATE (human gate)**: decide the `timeout` outcome's ADR home — amend [ADR-0014](../../decisions/ADR-0014-llm-diagnostic-telemetry-traces-logs-evals.md) or write a new ADR. Do NOT self-approve (Principle IV / governance). Blocks merge, not the code. → **Human decided: new [ADR-0015](../../decisions/ADR-0015-harness-liveness-timeout-outcome.md)** (Status: Proposed; formal acceptance at merge).
 
 ---
 

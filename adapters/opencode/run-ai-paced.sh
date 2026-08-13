@@ -60,6 +60,12 @@ fi
 # 4) the pluggable brain + provenance attribution (ADR-0010)
 export PROVENANCE_AGENT="opencode"
 export PROVENANCE_MODEL="$PROVIDER/$MODEL"
+# Brain-call liveness thresholds (spec 007; FR-004, research D3). Local/slow profile: loose — a
+# local model on modest hardware is legitimately slow, so the bounds are wider than the cloud/fast
+# adapter. The neutral core owns the mechanism; this adapter owns the values. Overridable via env;
+# falls back to run-modes.yml then a hard floor.
+export AI_PACED_BRAIN_IDLE_TIMEOUT="${AI_PACED_BRAIN_IDLE_TIMEOUT:-420}"
+export AI_PACED_BRAIN_HARDCAP="${AI_PACED_BRAIN_HARDCAP:-3600}"
 PROMPT='You are the autonomous executor of an approved plan. Implement the next task ($NEXT_TASK) from $TASKS for spec $SPEC by editing files in this repo. When it passes the checks, mark that task [x] in $TASKS. If checks fail, read $GATE_LOG and fix. Do not commit. Keep changes minimal and in-scope.'
 # --auto: auto-approve tool permissions. REQUIRED for headless `opencode run` — without it opencode
 # auto-rejects every file read/edit and the executor makes zero progress. Safe here: the brain is

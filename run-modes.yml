@@ -39,6 +39,11 @@ modes:
       on_green: open-change-request
       on_failure: bounded-retry-then-report
       max_fix_iterations: 5
+    # Brain-call liveness bounds (spec 007) so the harness can never hang on a stuck brain.
+    # Resolution order per call: env (adapter) → these neutral defaults → hard floor (300 / 1800).
+    # The neutral core owns the mechanism; adapters own the values (ADR-0001/0008).
+    brain_idle_timeout_s: 300   # kill a brain call silent (no new output) this long — primary; adapters may override via env
+    brain_hardcap_s: 1800       # kill a brain call running this long total — backstop; adapters may override via env
 
 # Everything not listed as a gate (implementing tasks within an approved spec, fixing until the
 # verification gate is green) is autonomous in ai-paced and human-driven in human-paced.

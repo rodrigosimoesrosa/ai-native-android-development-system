@@ -42,6 +42,14 @@ ret_total="$(sum_trailer Retries)"
 err_total="$(sum_trailer Errors)"
 per_outcome="$(trailer_counts Outcome)"
 
+# Stall-terminated runs (spec 007 / research D5): `timeout` is a distinct health signal — "the brain
+# stopped responding" — counted separately from `error` ("the brain returned failures").
+count_outcome() { # $1 = Provenance-Outcome value → number of commits carrying it
+  git log --format="%(trailers:key=Provenance-Outcome,valueonly)" 2>/dev/null \
+    | sed '/^[[:space:]]*$/d; /^-$/d' | grep -cxF "$1" || true
+}
+timeout_total="$(count_outcome timeout)"
+
 # Tokens per model — approximate: counts are NOT directly comparable across models (tokenizers differ).
 tokens_by_model() {
   git log --format='%H' 2>/dev/null | while IFS= read -r _h; do
@@ -86,6 +94,7 @@ if [ "$fmt" = "markdown" ]; then
     printf '| Latency (ms) | %d |\n' "$lat_total"
     printf '| Retries | %d |\n' "$ret_total"
     printf '| Errors | %d |\n' "$err_total"
+    printf '| Timeouts (stall-terminated) | %d |\n' "$timeout_total"
     block "Outcome distribution" "$per_outcome"
     if [ -n "$per_model_tokens" ]; then
       printf '\n**Tokens per model** _(approximate — not directly comparable across models: different tokenizers)_\n\n'
@@ -110,7 +119,7 @@ emit "commits per spec (Provenance-Spec)" "$per_spec"
 emit "commits per agent (Provenance-Agent)" "$per_agent"
 emit "commits per method (Provenance-Method)" "$per_method"
 echo "  run metrics (spec 006):"
-echo "    tokens: $tok_total, latency-ms: $lat_total, retries: $ret_total, errors: $err_total"
+echo "    tokens: $tok_total, latency-ms: $lat_total, retries: $ret_total, errors: $err_total, timeouts: $timeout_total"
 emit "outcome distribution (Provenance-Outcome)" "$per_outcome"
 if [ -n "$per_model_tokens" ]; then
   echo "    tokens per model (approximate — not directly comparable across models: different tokenizers):"
