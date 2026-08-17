@@ -43,6 +43,7 @@ with an ADR, **stop and escalate** — do not invent a new architectural decisio
 - [ADR-0012](decisions/ADR-0012-llm-runtime-observability-adapter-scoped.md) — LLM runtime observability (token/cost/latency/traces): **adapter-scoped**, never in the neutral core.
 - [ADR-0013](decisions/ADR-0013-per-commit-token-cost-aggregate.md) — Per-commit token/cost aggregate via provenance trailers: **Proposed** (per-commit, not per-file).
 - [ADR-0014](decisions/ADR-0014-llm-diagnostic-telemetry-traces-logs-evals.md) — LLM diagnostic telemetry (traces/logs/evals): **Proposed**, adapter-scoped; content never crosses to git.
+- [ADR-0015](decisions/ADR-0015-harness-liveness-timeout-outcome.md) — `timeout` run-health outcome, produced by the **neutral harness** (spec 007): **Proposed**.
 
 ## How the work is done (the neutral "how")
 

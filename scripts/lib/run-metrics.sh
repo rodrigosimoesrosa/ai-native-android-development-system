@@ -22,7 +22,7 @@ run_metrics_valid() {
   local key="$1" val="$2"
   case "$key" in
     PROVENANCE_OUTCOME)
-      case "$val" in ok|error|cancelled) return 0 ;; *) return 1 ;; esac ;;
+      case "$val" in ok|error|cancelled|timeout) return 0 ;; *) return 1 ;; esac ;;
     PROVENANCE_TOKENS|PROVENANCE_LATENCY_MS|PROVENANCE_RETRIES|PROVENANCE_ERRORS)
       case "$val" in '' | *[!0-9]*) return 1 ;; *) return 0 ;; esac ;;
     *) return 1 ;;

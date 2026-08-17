@@ -14,11 +14,34 @@ cd "$(git rev-parse --show-toplevel)" || exit 2
 
 # Neutral run-metrics helper (spec 006): the harness writes run-health to the session sidecar on exit.
 . scripts/lib/run-metrics.sh 2>/dev/null || true
+# Liveness wrapper (spec 007): a stuck brain call always *returns* (124) so bounded-retry can advance.
+. scripts/lib/brain-watchdog.sh 2>/dev/null || true
 
 POLICY="run-modes.yml"
 max_iter="$(awk '/ai-paced:/{f=1} f&&/max_fix_iterations:/{print $2; exit}' "$POLICY" 2>/dev/null)"
 max_iter="${max_iter:-5}"
 branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo -)"
+
+# Brain-call liveness thresholds (spec 007). Resolution order, highest wins: adapter env →
+# run-modes.yml default → hard floor (300/1800). A non-integer or ≤0 value is IGNORED (fall through to
+# the next source, never abort) so the loop can never hang on garbled config (FR-004, FR-005).
+_is_pos_int() { case "$1" in ''|*[!0-9]*) return 1 ;; esac; [ "$1" -gt 0 ] 2>/dev/null; }
+_yml_num() { awk -v k="$1:" '/ai-paced:/{f=1} f&&$1==k{print $2; exit}' "$POLICY" 2>/dev/null; }
+_resolve_threshold() { # <env-value> <yml-key> <floor>
+  local _v
+  for _v in "$1" "$(_yml_num "$2")" "$3"; do
+    if _is_pos_int "$_v"; then printf '%s' "$_v"; return 0; fi
+  done
+  printf '%s' "$3"
+}
+idle="$(_resolve_threshold "${AI_PACED_BRAIN_IDLE_TIMEOUT:-}" brain_idle_timeout_s 300)"
+hardcap="$(_resolve_threshold "${AI_PACED_BRAIN_HARDCAP:-}" brain_hardcap_s 1800)"
+# hardcap must be ≥ idle (backstop never fires before the primary control); raise it if a resolved
+# pair violates that (data-model validation).
+if [ "$hardcap" -lt "$idle" ]; then
+  echo "⚠ brain hardcap (${hardcap}s) < idle (${idle}s) — raising hardcap to idle. (spec 007, FR-005)"
+  hardcap="$idle"
+fi
 
 # --- ai-paced requires an APPROVED plan (the handoff boundary): a tasks.md to execute. ---
 TASKS="${TASKS_FILE:-specs/$branch/tasks.md}"
@@ -50,7 +73,9 @@ _ai_paced_on_exit() {
     case "$_code" in
       0)   _out=ok ;;
       3|4) _out=cancelled ;;   # escalated to a human / no tasks — not a failure of the run itself
-      *)   _out=error ;;
+      *)   # a stall-caused stop (hard-cap hit or idle retries exhausted) is diagnostically distinct
+           # from a gate/agent error — record it as `timeout`, not `error` (spec 007, FR-007).
+           if [ "${stall_stop:-0}" -eq 1 ]; then _out=timeout; else _out=error; fi ;;
     esac
     run_metrics_set PROVENANCE_OUTCOME "$_out" 2>/dev/null || true
   fi
@@ -76,6 +101,7 @@ next_task() { grep -m1 -E '^[[:space:]]*- \[ \]' "$TASKS" 2>/dev/null || true; }
 prev_rem=-1
 fix_iter=0
 total_iter=0
+stall_stop=0   # 1 ⇔ the most recent brain call was killed for a stall (124) — drives the timeout outcome
 max_total=$(( 200 ))
 while : ; do
   gate_ok=1; run_gate || gate_ok=0
@@ -107,8 +133,16 @@ while : ; do
   # <AGENT STEP> — the pluggable brain: implement NEXT_TASK, mark it [x] in TASKS, fix the gate; no commit.
   if [ -n "${AI_PACED_AGENT_CMD:-}" ]; then
     echo "  → invoking agent to execute the next task…"
-    TASKS="$TASKS" NEXT_TASK="$next" GATE_LOG="$GATE_LOG" SPEC="$branch" bash -c "$AI_PACED_AGENT_CMD" \
-      || echo "  (agent returned non-zero; re-evaluating anyway)"
+    brain_rc=0
+    TASKS="$TASKS" NEXT_TASK="$next" GATE_LOG="$GATE_LOG" SPEC="$branch" \
+      run_brain_with_liveness "$idle" "$hardcap" bash -c "$AI_PACED_AGENT_CMD" || brain_rc=$?
+    if [ "$brain_rc" -eq 124 ]; then
+      stall_stop=1
+      echo "  ⏱ brain call stalled (idle ${idle}s / hardcap ${hardcap}s) — killed; counts as a failed attempt. (spec 007, FR-003)"
+    else
+      stall_stop=0
+      [ "$brain_rc" -ne 0 ] && echo "  (agent returned non-zero; re-evaluating anyway)"
+    fi
     continue
   fi
 
